@@ -37,7 +37,7 @@ export function Panels() {
       <Section title="Cards" sub="Drag the cards over the gradient — and hit shuffle — to watch the glass refract a real backdrop.">
         <ShuffleStage height={400}>
           <Draggable x={24} y={48}>
-            <GlassCard sheen className="demo-card" style={{ width: 300 }}>
+            <GlassCard sheen refract={64} className="demo-card" style={{ width: 300 }}>
               <div className="demo-card-eyebrow">sheen</div>
               <div className="demo-card-title">Wrap anything</div>
               <p>A padded frosted surface. Hover or grab it — the sheen sweeps across.</p>
@@ -45,7 +45,7 @@ export function Panels() {
             </GlassCard>
           </Draggable>
           <Draggable x={372} y={150}>
-            <GlassCard tone="light" sheen className="demo-card" style={{ width: 270 }}>
+            <GlassCard tone="light" sheen refract={60} className="demo-card" style={{ width: 270 }}>
               <div className="demo-card-eyebrow">tone="light"</div>
               <div className="demo-card-title">Light glass</div>
               <p>The same surface, tuned for bright backgrounds.</p>
@@ -57,7 +57,7 @@ export function Panels() {
       <Section title="Edge profiles" sub="The lens shape changes how the rim bends the backdrop — convex magnifies outward, concave caves in, bevel is a crisp edge. Shuffle the gradient to see it clearly. (Aave's height-profile idea, as a prop.)">
         <ShuffleStage height={240} center>
           {PROFILES.map((p) => (
-            <GlassCard key={p} profile={p} className="profile-card">
+            <GlassCard key={p} profile={p} refract={46} className="profile-card">
               <div className="demo-card-eyebrow">profile</div>
               <div className="demo-card-title">{p}</div>
             </GlassCard>

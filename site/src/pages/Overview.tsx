@@ -13,10 +13,10 @@ const FEATURES = [
 ];
 
 const KIT = [
-  { to: "/toasts", name: "Toasts", body: "A sonner-style notifier in glass — promise, action, custom render." },
-  { to: "/buttons", name: "Buttons", body: "Frosted buttons with a springy press, three sizes, light & dark." },
-  { to: "/panels", name: "Panels", body: "Padded glass containers you can drop anything into." },
-  { to: "/primitives", name: "Primitives", body: "The raw <Glass> surface — wrap any element in real glass." },
+  { to: "/toasts", name: "Toasts", body: "A sonner-style notifier in glass — promise, action, custom render.", shot: "/shots/toasts.png" },
+  { to: "/buttons", name: "Buttons", body: "Frosted buttons with a springy press, three sizes, light & dark.", shot: "/shots/buttons.png" },
+  { to: "/panels", name: "Panels", body: "Padded glass containers you can drop anything into.", shot: "/shots/cards.png" },
+  { to: "/primitives", name: "Primitives", body: "The raw <Glass> surface — wrap any element in real glass.", shot: "/shots/lab.png" },
 ];
 
 export function Overview() {
@@ -30,14 +30,23 @@ export function Overview() {
           as a tiny, opinionated kit. Toasts, buttons, panels, and a <code>&lt;Glass&gt;</code>{" "}
           surface you can wrap anything in.
         </p>
+
+        <div className="ov-install">
+          <InstallChip />
+          <span className="ov-install-note">zero-config · ships one stylesheet · MIT</span>
+        </div>
+
         <div className="ov-cta">
           <button className="primary" onClick={() => toast.success("Welcome to Glacé", { description: "Drag a toast sideways to dismiss it." })}>
             Show me a toast
           </button>
           <Link className="ghost" to="/toasts">Read the docs <ArrowUpRight className="ghost-icon" /></Link>
         </div>
-        <InstallChip />
       </header>
+
+      <Link to="/panels" className="ov-showcase">
+        <img src="/shots/cards.png" alt="Glass cards refracting a colorful gradient" loading="eager" />
+      </Link>
 
       <div className="features">
         {FEATURES.map(({ Icon, title, body }) => (
@@ -53,9 +62,12 @@ export function Overview() {
       <p className="doc-sub">Four components, one glass foundation. Each on its own page.</p>
       <div className="kit-grid">
         {KIT.map((k) => (
-          <Link key={k.to} to={k.to} className="kit-link glace-glass" data-tone="dark">
-            <div className="kit-link-name">{k.name} <ArrowUpRight className="kit-link-icon" /></div>
-            <p>{k.body}</p>
+          <Link key={k.to} to={k.to} className="kit-link">
+            <div className="kit-shot"><img src={k.shot} alt={k.name} loading="lazy" /></div>
+            <div className="kit-link-body">
+              <div className="kit-link-name">{k.name} <ArrowUpRight className="kit-link-icon" /></div>
+              <p>{k.body}</p>
+            </div>
           </Link>
         ))}
       </div>

@@ -284,3 +284,84 @@ button { font-family: inherit; }
 .footer .credits { color: var(--faint); }
 .footer a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); }
 .footer a:hover { border-color: var(--fg); }
+
+/* ── Glass Lab ────────────────────────────────────────────────────────── */
+.lab { margin-top: 8px; }
+.lab-stage {
+  position: relative;
+  height: 440px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  background: #060607;
+  touch-action: none;
+}
+/* high-contrast monochrome test chart: grid + concentric rings */
+.lab-chart {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 26px),
+    repeating-radial-gradient(circle at 50% 45%, rgba(255,255,255,0.5) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0 2px, transparent 2px 16px);
+}
+.lab-chart-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 2.1rem;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.22);
+  text-align: center;
+  line-height: 2.4;
+  word-spacing: 0.3em;
+  padding: 0 8%;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+.lab-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: grab;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.5),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+}
+.lab-card:active { cursor: grabbing; }
+.lab-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8), transparent 40%, transparent 60%, rgba(255,255,255,0.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.lab-card-inner { padding: 18px 20px; }
+.lab-card-title { font-weight: 560; font-size: 0.95rem; }
+.lab-card-sub { margin-top: 3px; font-size: 0.82rem; color: var(--muted); }
+
+.lab-controls {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+@media (max-width: 640px) { .lab-controls { grid-template-columns: repeat(2, 1fr); } }
+.lab-slider { display: flex; flex-direction: column; gap: 7px; font-size: 0.78rem; }
+.lab-slider-row { display: flex; justify-content: space-between; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.68rem; color: var(--faint); }
+.lab-slider-val { color: var(--fg); }
+.lab-slider input[type="range"] { width: 100%; accent-color: #fafafa; }
+.lab-note { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }

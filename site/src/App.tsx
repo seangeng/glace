@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Toaster, toast } from "glaceui";
 import { CodeBlock } from "./CodeBlock";
 import { Playground, type ToasterConfig } from "./Playground";
+import { GlassLab } from "./GlassLab";
 import { ArrowUpRight, Mark, Phone, Sparkles, Stack, SunMoon, Swatch, Swipe } from "./Icons";
 
 const QUICKSTART = `import { Toaster, toast } from "glaceui";
@@ -148,6 +149,17 @@ export function App() {
             <p>{body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="block">
+        <Eyebrow>Glass lab</Eyebrow>
+        <h2>Drag the glass.</h2>
+        <p className="sub">
+          The edges don't just blur — they <em>refract</em>, bending the grid behind them like
+          real glass. Drag the card over the chart and tune the optics. (Refraction renders in
+          Chromium; other browsers fall back to a frosted blur.)
+        </p>
+        <GlassLab />
       </section>
 
       <section className="block">

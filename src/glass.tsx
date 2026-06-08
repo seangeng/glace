@@ -1,68 +1,71 @@
 import { useEffect, useId, useState } from "react";
 
 /**
- * True Apple-style "liquid glass" refraction.
+ * True Apple-style "liquid glass" refraction for the toasts.
  *
- * Instead of leaning on a big backdrop blur, we bend the backdrop at the rim
- * with an SVG displacement map — the Aave / kube.io technique. A generated
- * rounded-rect map encodes horizontal bend in R and vertical bend in G (128 =
- * neutral, ramped at the edges); feDisplacementMap pushes each backdrop pixel
- * accordingly, so the edges magnify like real glass while a low blur keeps the
- * surface soft.
+ * Rather than leaning on a big backdrop blur, we bend the backdrop at the rim
+ * with an SVG displacement map — the technique behind Aave's glass (and the
+ * shuding / rdev / rizroze implementations). A canvas builds a map where the
+ * red channel encodes horizontal bend and the blue channel vertical bend (128 =
+ * neutral); the center is neutralised so only the edge band refracts. Three
+ * displacement passes at slightly different scales add a faint chromatic fringe.
  *
- * `url()` filters inside backdrop-filter are Chromium-only, so we feature-detect
- * and only opt in there. Everywhere else the CSS falls back to a plain frosted
- * blur, which still looks good.
+ * Units are userSpaceOnUse, so `scale` is in real pixels. `url()` filters inside
+ * backdrop-filter are Chromium-only, so we feature-detect and only opt in there;
+ * everywhere else the CSS falls back to a plain frosted blur.
  */
 
-const SCALE = 0.05; // displacement depth as a fraction of the toast box
+const SCALE = 34; // px of edge displacement
+const ABERRATION = 3; // px split between R/G/B passes
+const REF_W = 356;
+const REF_H = 84;
+const REF_RADIUS = 16;
 
-/** Build a rounded-rect rim displacement map as a data URL. */
-function makeGlassMap(w = 360, h = 120, radius = 22, edge = 20): string | null {
+function buildMap(w: number, h: number, radius: number, scale: number): string | null {
   if (typeof document === "undefined") return null;
-  const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
-  const ctx = c.getContext("2d");
-  if (!ctx) return null;
-  const img = ctx.createImageData(w, h);
-  const d = img.data;
+  const pad = Math.ceil(Math.max(scale * 0.5, 24));
+  const cw = w + pad * 2;
+  const ch = h + pad * 2;
+  const cv = document.createElement("canvas");
+  cv.width = cw;
+  cv.height = ch;
+  const ctx = cv.getContext("2d");
+  if (!ctx || !ctx.roundRect) return null;
 
-  const sdf = (px: number, py: number) => {
-    const qx = Math.abs(px - w / 2) - (w / 2 - radius);
-    const qy = Math.abs(py - h / 2) - (h / 2 - radius);
-    const ax = Math.max(qx, 0);
-    const ay = Math.max(qy, 0);
-    return Math.hypot(ax, ay) + Math.min(Math.max(qx, qy), 0) - radius;
-  };
+  ctx.fillStyle = "rgb(128,128,128)"; // neutral = no displacement
+  ctx.fillRect(0, 0, cw, ch);
 
-  const vecs = new Float32Array(w * h * 2);
-  let maxMag = 0;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const dist = -sdf(x, y); // >0 inside
-      const t = Math.max(0, 1 - dist / edge); // 1 at rim → 0 toward center
-      const mag = t * t; // glassy falloff
-      const nx = w / 2 - x;
-      const ny = h / 2 - y;
-      const len = Math.hypot(nx, ny) || 1;
-      const i = (y * w + x) * 2;
-      vecs[i] = (nx / len) * mag;
-      vecs[i + 1] = (ny / len) * mag;
-      maxMag = Math.max(maxMag, Math.abs(vecs[i]), Math.abs(vecs[i + 1]));
-    }
-  }
-  const k = maxMag ? 127 / maxMag : 0;
-  for (let p = 0; p < w * h; p++) {
-    const i4 = p * 4;
-    const i2 = p * 2;
-    d[i4] = 128 + vecs[i2] * k; // R = x-displacement
-    d[i4 + 1] = 128 + vecs[i2 + 1] * k; // G = y-displacement
-    d[i4 + 2] = 128; // B neutral
-    d[i4 + 3] = 255;
-  }
-  ctx.putImageData(img, 0, 0);
-  return c.toDataURL();
+  // 2-axis field inside the rounded rect: R = horizontal, B = vertical
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(pad, pad, w, h, radius);
+  ctx.clip();
+  ctx.fillStyle = "#000";
+  ctx.fillRect(pad, pad, w, h);
+  let g = ctx.createLinearGradient(pad + w, 0, pad, 0);
+  g.addColorStop(0, "#ff0000");
+  g.addColorStop(1, "#000000");
+  ctx.fillStyle = g;
+  ctx.fillRect(pad, pad, w, h);
+  ctx.globalCompositeOperation = "difference";
+  g = ctx.createLinearGradient(0, pad, 0, pad + h);
+  g.addColorStop(0, "#0000ff");
+  g.addColorStop(1, "#000000");
+  ctx.fillStyle = g;
+  ctx.fillRect(pad, pad, w, h);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.restore();
+
+  // neutralise the center → leaves a refracting rim band
+  const border = Math.min(w, h) * 0.16;
+  ctx.filter = `blur(${Math.round(radius * 0.7)}px)`;
+  ctx.fillStyle = "hsla(0,0%,50%,0.92)";
+  ctx.beginPath();
+  ctx.roundRect(pad + border, pad + border, w - 2 * border, h - 2 * border, radius);
+  ctx.fill();
+  ctx.filter = "none";
+
+  return cv.toDataURL();
 }
 
 function supportsRefraction(): boolean {
@@ -73,10 +76,6 @@ function supportsRefraction(): boolean {
   );
 }
 
-/**
- * Injects the displacement filter and reports the filter id back so the Toaster
- * can flip on the refraction CSS. Renders nothing where unsupported.
- */
 export function GlassFilter({ onReady }: { onReady: (id: string | null) => void }) {
   const rawId = useId();
   const id = `glace-glass-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -87,7 +86,7 @@ export function GlassFilter({ onReady }: { onReady: (id: string | null) => void 
       onReady(null);
       return;
     }
-    const m = makeGlassMap();
+    const m = buildMap(REF_W, REF_H, REF_RADIUS, SCALE);
     if (!m) {
       onReady(null);
       return;
@@ -100,38 +99,18 @@ export function GlassFilter({ onReady }: { onReady: (id: string | null) => void 
   if (!map) return null;
 
   return (
-    <svg
-      aria-hidden="true"
-      style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}
-    >
+    <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}>
       <defs>
-        <filter
-          id={id}
-          primitiveUnits="objectBoundingBox"
-          colorInterpolationFilters="sRGB"
-          x="-0.1"
-          y="-0.2"
-          width="1.2"
-          height="1.4"
-        >
-          <feImage
-            href={map}
-            x="0"
-            y="0"
-            width="1"
-            height="1"
-            preserveAspectRatio="none"
-            result="map"
-          />
-          {/* soften the backdrop a hair, then bend it at the rim */}
-          <feGaussianBlur in="SourceGraphic" stdDeviation="0.004" result="src" />
-          <feDisplacementMap
-            in="src"
-            in2="map"
-            scale={SCALE}
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
+        <filter id={id} colorInterpolationFilters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+          <feImage href={map} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
+          <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-(SCALE + ABERRATION)} result="r" />
+          <feColorMatrix in="r" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="rc" />
+          <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-SCALE} result="g" />
+          <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="gc" />
+          <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-(SCALE - ABERRATION)} result="b" />
+          <feColorMatrix in="b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="bc" />
+          <feBlend in="rc" in2="gc" mode="screen" result="rg" />
+          <feBlend in="rg" in2="bc" mode="screen" />
         </filter>
       </defs>
     </svg>

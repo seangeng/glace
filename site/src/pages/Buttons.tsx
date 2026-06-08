@@ -2,8 +2,9 @@ import { useState } from "react";
 import { GlassButton, toast, type GlassButtonProps } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { MorphButton } from "../LiquidResize";
+import { ButtonPlayground } from "../Playgrounds";
 import { ShuffleStage } from "../ShuffleStage";
-import { PageHead, PropsTable, Section , PropRow} from "../ui";
+import { PageHead, PropsTable, Section, type PropRow } from "../ui";
 
 /** A demo button that morphs to a new label on each click. */
 function TapButton({ a, b, ...rest }: { a: string; b: string } & GlassButtonProps) {
@@ -50,6 +51,10 @@ export function Buttons() {
         refraction, a specular sheen that sweeps as you hover, and a press that tips the glass
         back in 3D and sinks the shadow in. Hold one down to feel it.
       </PageHead>
+
+      <Section title="Try it" sub="Live button — drive the props with the controls, shuffle the backdrop.">
+        <ButtonPlayground />
+      </Section>
 
       <Section title="Sizes" sub="Three sizes, pill-shaped. Click one — the label morphs. Shuffle the backdrop to see the glass refract it.">
         <ShuffleStage height={170} center>

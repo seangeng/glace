@@ -1,8 +1,9 @@
 import { GlassButton, GlassCard, toast } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { Draggable } from "../Draggable";
+import { CardPlayground } from "../Playgrounds";
 import { ShuffleStage } from "../ShuffleStage";
-import { PageHead, PropsTable, Section , PropRow} from "../ui";
+import { PageHead, PropsTable, Section, type PropRow } from "../ui";
 
 const PROFILES = ["convex", "concave", "bevel"] as const;
 
@@ -33,6 +34,10 @@ export function Panels() {
         A padded glass container. Drop anything inside — it refracts the backdrop at its edges,
         catches light along the rim, and lifts on hover when <code>interactive</code>.
       </PageHead>
+
+      <Section title="Try it" sub="Live card — drive the props with the controls, shuffle the backdrop.">
+        <CardPlayground />
+      </Section>
 
       <Section title="Cards" sub="Drag the cards over the gradient — and hit shuffle — to watch the glass refract a real backdrop.">
         <ShuffleStage height={400}>

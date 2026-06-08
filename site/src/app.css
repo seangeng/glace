@@ -675,3 +675,17 @@ button { font-family: inherit; }
 .shuffle-icon { width: 14px; height: 14px; }
 .shuffle-content { position: relative; z-index: 2; width: 100%; height: 100%; }
 .shuffle-content--center { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: center; padding: 28px; }
+
+/* ── Demo prop playgrounds (Buttons / Panels "Try it") ────────────────── */
+.controls {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 24px;
+  align-items: flex-end;
+}
+.controls .lab-slider { min-width: 150px; flex: 1 1 150px; max-width: 230px; }
+.ctrl-field { display: flex; flex-direction: column; gap: 8px; }
+.ctrl-label { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); }
+.pg-card { width: 280px; display: flex; flex-direction: column; gap: 4px; padding: 18px; }
+.pg-card p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.72; line-height: 1.45; }

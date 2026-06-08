@@ -1,32 +1,40 @@
 import { useEffect, useState } from "react";
 
 /**
- * Shared "liquid glass" foundation for every Glacé surface.
+ * The single "liquid glass" refraction engine for the whole kit.
  *
- * One global SVG displacement filter is mounted lazily (the first time any glass
- * element renders) and reused everywhere. It bends the backdrop at the rim — the
- * Aave / rizroze technique: a canvas map (R = x-bend, B = y-bend, neutral
- * center) drives a 3-pass chromatic feDisplacementMap. `url()` filters in
- * backdrop-filter are Chromium-only, so we feature-detect; elsewhere callers
- * fall back to a plain frosted blur.
+ * A displacement map is generated at an element's ACTUAL size (so the rim stays
+ * the right thickness at any aspect ratio — the Aave / rizroze technique: a
+ * canvas map with R = x-bend, B = y-bend, neutral center, driving a 3-pass
+ * chromatic feDisplacementMap). Maps + their SVG filters are cached by size, so
+ * every same-sized surface (all md buttons, all 356px toasts…) shares one
+ * filter — no per-element duplication. `url()` filters in backdrop-filter are
+ * Chromium-only, so we feature-detect; elsewhere callers fall back to blur.
  */
 
-const FILTER_ID = "glace-glass";
-const SCALE = 22;
-const ABERRATION = 1.0;
 const REF_W = 356;
 const REF_H = 84;
 const REF_RADIUS = 16;
+const BASE_SCALE = 18; // px of edge displacement (clamped to the element)
+const ABERR = 1.0; // chromatic split
+const MAX_DIM = 1400; // clamp generated canvas so wide surfaces stay cheap
 
-// per-element tuning — keep refraction concentrated at the rim and gentle
-const BASE_SCALE = 18;
-const ABERR = 1.0;
+let supportCache: boolean | undefined;
+export function supportsRefraction(): boolean {
+  if (supportCache !== undefined) return supportCache;
+  if (typeof window === "undefined" || !window.CSS?.supports) return (supportCache = false);
+  supportCache =
+    CSS.supports("backdrop-filter", 'url("#g")') ||
+    CSS.supports("-webkit-backdrop-filter", 'url("#g")');
+  return supportCache;
+}
 
-// undefined = not yet attempted, null = unsupported, string = mounted filter id
-let cached: string | null | undefined;
-
-function buildMap(w: number, h: number, radius: number, scale: number): string | null {
+/** Generate a rounded-rect displacement map (data URL) for a w×h surface. */
+export function buildMap(w: number, h: number, radius: number, scale: number): string | null {
   if (typeof document === "undefined") return null;
+  // clamp generation size — a 2000px nav is generated at 1400 and stretched
+  w = Math.min(Math.max(Math.round(w), 1), MAX_DIM);
+  h = Math.min(Math.max(Math.round(h), 1), MAX_DIM);
   const pad = Math.ceil(Math.max(scale * 0.5, 24));
   const cw = w + pad * 2;
   const ch = h + pad * 2;
@@ -67,65 +75,11 @@ function buildMap(w: number, h: number, radius: number, scale: number): string |
   ctx.fill();
   ctx.filter = "none";
 
-  return cv.toDataURL();
-}
-
-function supportsRefraction(): boolean {
-  if (typeof window === "undefined" || !window.CSS?.supports) return false;
-  return (
-    CSS.supports("backdrop-filter", 'url("#g")') ||
-    CSS.supports("-webkit-backdrop-filter", 'url("#g")')
-  );
-}
-
-/** Mount the global filter once; returns its id, or null if unsupported. */
-function ensureGlassFilter(): string | null {
-  if (cached !== undefined) return cached;
-  if (typeof document === "undefined" || !supportsRefraction()) {
-    cached = null;
+  try {
+    return cv.toDataURL();
+  } catch {
     return null;
   }
-  const map = buildMap(REF_W, REF_H, REF_RADIUS, SCALE);
-  if (!map) {
-    cached = null;
-    return null;
-  }
-  const wrap = document.createElement("div");
-  wrap.setAttribute("aria-hidden", "true");
-  wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
-  wrap.innerHTML = `<svg><defs><filter id="${FILTER_ID}" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
-<feImage href="${map}" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
-<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(SCALE + ABERRATION)}" result="r"/>
-<feColorMatrix in="r" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="rc"/>
-<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-SCALE}" result="g"/>
-<feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="gc"/>
-<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(SCALE - ABERRATION)}" result="b"/>
-<feColorMatrix in="b" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="bc"/>
-<feBlend in="rc" in2="gc" mode="screen" result="rg"/>
-<feBlend in="rg" in2="bc" mode="screen"/>
-</filter></defs></svg>`;
-  document.body.appendChild(wrap);
-  cached = FILTER_ID;
-  return FILTER_ID;
-}
-
-/**
- * Returns the global glass filter id once mounted (client-side), or null if the
- * browser can't refract. SSR-safe: null on first render, resolves after mount.
- */
-export function useGlassFilter(): string | null {
-  const [id, setId] = useState<string | null>(null);
-  useEffect(() => {
-    setId(ensureGlassFilter());
-  }, []);
-  return id;
-}
-
-/** Build the `backdrop-filter` value for a glass surface. */
-export function glassBackdrop(filterId: string | null, blur: number, fallbackBlur: number): string {
-  return filterId
-    ? `url(#${filterId}) blur(${blur}px) saturate(180%) brightness(1.04)`
-    : `blur(${fallbackBlur}px) saturate(180%)`;
 }
 
 function filterMarkup(id: string, map: string, scale: number, aberr: number): string {
@@ -143,7 +97,32 @@ function filterMarkup(id: string, map: string, scale: number, aberr: number): st
 </filter></defs></svg>`;
 }
 
+// Cache mounted filters by size+shape so same-sized surfaces share one filter.
+const filterCache = new Map<string, string>();
 let uid = 0;
+
+function scaleFor(w: number, h: number): number {
+  return Math.min(BASE_SCALE, Math.max(8, Math.min(w, h) * 0.4));
+}
+
+/** Mount (or reuse) a filter for a given size; returns its id or null. */
+function getFilter(w: number, h: number, radius: number): string | null {
+  if (typeof document === "undefined" || !supportsRefraction()) return null;
+  const scale = scaleFor(w, h);
+  const key = `${w}x${h}r${radius}s${scale.toFixed(2)}`;
+  const hit = filterCache.get(key);
+  if (hit) return hit;
+  const map = buildMap(w, h, radius, scale);
+  if (!map) return null;
+  const id = `glace-rx-${++uid}`;
+  const wrap = document.createElement("div");
+  wrap.setAttribute("aria-hidden", "true");
+  wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
+  wrap.innerHTML = filterMarkup(id, map, scale, ABERR);
+  document.body.appendChild(wrap);
+  filterCache.set(key, id);
+  return id;
+}
 
 export interface RefractionOptions {
   radius?: number;
@@ -154,10 +133,10 @@ export interface RefractionOptions {
 }
 
 /**
- * Per-element refraction. Generates a displacement map at the element's ACTUAL
- * size (so the rim stays the right thickness at any aspect ratio — a wide nav
- * and a small button both refract only at their edges, never the center) and
- * regenerates on resize. This is the fix for "one stretched map" smearing.
+ * Per-element refraction. Measures the element, mounts/reuses a size-keyed
+ * filter, and returns the `backdrop-filter` value + whether refraction is on.
+ * Regenerates on resize (debounced) and retries once after layout for elements
+ * that mount at zero size (late fonts, hidden ancestors).
  */
 export function useGlassRefraction(
   ref: { current: HTMLElement | null },
@@ -172,26 +151,19 @@ export function useGlassRefraction(
   useEffect(() => {
     const el = ref.current;
     if (!refract || !el || !supportsRefraction()) return;
-    const id = `glace-rx-${++uid}`;
-    const wrap = document.createElement("div");
-    wrap.setAttribute("aria-hidden", "true");
-    wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
-    document.body.appendChild(wrap);
-
-    let lastW = 0;
-    let lastH = 0;
+    let raf = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let lastKey = "";
 
     const render = () => {
       const w = Math.round(el.offsetWidth);
       const h = Math.round(el.offsetHeight);
-      if (!w || !h || (w === lastW && h === lastH)) return;
-      lastW = w;
-      lastH = h;
-      const scale = Math.min(BASE_SCALE, Math.max(8, Math.min(w, h) * 0.4));
-      const map = buildMap(w, h, radius, scale);
-      if (!map) return;
-      wrap.innerHTML = filterMarkup(id, map, scale, ABERR);
+      if (!w || !h) return; // not laid out yet — ResizeObserver / rAF will retry
+      const key = `${w}x${h}r${radius}`;
+      if (key === lastKey) return;
+      lastKey = key;
+      const id = getFilter(w, h, radius);
+      if (!id) return;
       setState({
         backdrop: `url(#${id}) blur(${blur}px) saturate(180%) brightness(${brightness})`,
         refracting: true,
@@ -199,6 +171,7 @@ export function useGlassRefraction(
     };
 
     render();
+    raf = requestAnimationFrame(render); // catch post-layout / late-font sizing
     const ro = new ResizeObserver(() => {
       clearTimeout(timer);
       timer = setTimeout(render, 120);
@@ -208,10 +181,22 @@ export function useGlassRefraction(
     return () => {
       ro.disconnect();
       clearTimeout(timer);
-      wrap.remove();
+      cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refract, radius, blur, fallbackBlur, brightness]);
 
   return state;
+}
+
+/**
+ * Convenience: a reference-sized filter id (or null if unsupported), for when
+ * you want to apply `url(#id)` to your own element by hand.
+ */
+export function useGlassFilter(): string | null {
+  const [id, setId] = useState<string | null>(null);
+  useEffect(() => {
+    setId(getFilter(REF_W, REF_H, REF_RADIUS));
+  }, []);
+  return id;
 }

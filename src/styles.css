@@ -118,15 +118,12 @@
   mix-blend-mode: overlay;
 }
 
-/* ── True liquid-glass refraction (Chromium only; degrades to the frost above) ── */
-[data-glace-toaster][data-refract] [data-glace-toast] {
-  /* low blur — the displacement map does the work, not the blur */
-  -webkit-backdrop-filter: var(--glace-refract) blur(3px) saturate(185%) brightness(1.04);
-  backdrop-filter: var(--glace-refract) blur(3px) saturate(185%) brightness(1.04);
-}
-/* let more backdrop through so the bent edges are visible */
-[data-glace-toaster][data-refract][data-theme="dark"] [data-glace-toast] { --glace-bg: rgba(28, 28, 32, 0.38); }
-[data-glace-toaster][data-refract][data-theme="light"] [data-glace-toast] { --glace-bg: rgba(255, 255, 255, 0.4); }
+/* ── True liquid-glass refraction ──────────────────────────────────────────
+   Applied per-toast via an inline backdrop-filter (Toast.tsx → useGlassRefraction),
+   the same one engine the rest of the kit uses. When it's on, let more backdrop
+   through so the bent edges show. Degrades to the frosted blur above. */
+[data-glace-toaster][data-theme="dark"] [data-glace-toast][data-refract] { --glace-bg: rgba(28, 28, 32, 0.38); }
+[data-glace-toaster][data-theme="light"] [data-glace-toast][data-refract] { --glace-bg: rgba(255, 255, 255, 0.4); }
 
 /* ── Layout ───────────────────────────────────────────────────────────── */
 .glace-row {

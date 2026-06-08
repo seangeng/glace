@@ -3,6 +3,7 @@ import type { Position, ToastData } from "./types";
 import { store } from "./state";
 import { TypeIcon, CloseIcon } from "./icons";
 import { vibrate } from "./haptics";
+import { useGlassRefraction } from "./glass";
 
 interface Layout {
   index: number;
@@ -27,7 +28,7 @@ interface ToastProps {
 }
 
 const SWIPE_THRESHOLD = 0.4; // fraction of width
-const EXIT_MS = 280;
+const EXIT_MS = 320; // slightly longer than the exit transition so it plays out
 
 // Sileo-style spring: a real linear() spring on enter/settle (gentle overshoot),
 // clean ease-out on exit. Tokens live in styles.css so the whole kit shares one feel.
@@ -47,6 +48,12 @@ export function Toast({
   onHeight,
 }: ToastProps) {
   const ref = useRef<HTMLLIElement>(null);
+  const { backdrop, refracting } = useGlassRefraction(ref, {
+    radius: 16,
+    blur: 3,
+    fallbackBlur: 16,
+    brightness: 1.04,
+  });
   const [removing, setRemoving] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [swipe, setSwipe] = useState(0);
@@ -83,19 +90,17 @@ export function Toast({
   // auto-dismiss timer (pauses while expanded/hovered/hidden)
   const duration = toast.duration ?? (toast.type === "loading" ? Infinity : defaultDuration);
   useEffect(() => {
-    if (duration === Infinity || removing) return;
-    if (paused) {
+    if (duration === Infinity || removing || paused) return;
+    startedAt.current = Date.now();
+    timer.current = setTimeout(() => close("auto"), Math.max(remaining.current, 0));
+    // On cleanup (pause, in-place update, unmount) credit the time already
+    // spent so the toast doesn't restart its countdown from full.
+    return () => {
       if (timer.current) {
         clearTimeout(timer.current);
         timer.current = null;
         remaining.current -= Date.now() - startedAt.current;
       }
-      return;
-    }
-    startedAt.current = Date.now();
-    timer.current = setTimeout(() => close("auto"), Math.max(remaining.current, 0));
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused, duration, removing, toast.title, toast.type]);
@@ -150,6 +155,7 @@ export function Toast({
       data-front={front ? "" : undefined}
       data-swiping={swipe !== 0 ? "" : undefined}
       data-custom={custom ? "" : undefined}
+      data-refract={refracting ? "" : undefined}
       role="status"
       aria-live={toast.type === "error" ? "assertive" : "polite"}
       aria-atomic="true"
@@ -161,6 +167,8 @@ export function Toast({
         zIndex: layout.total - layout.index,
         transform,
         opacity,
+        backdropFilter: backdrop,
+        WebkitBackdropFilter: backdrop,
         touchAction: "pan-y",
         transition: drag.current
           ? "none"

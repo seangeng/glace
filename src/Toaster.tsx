@@ -4,7 +4,6 @@ import type { Position, ToastData, ToasterProps } from "./types";
 import { store } from "./state";
 import { Toast } from "./Toast";
 import { resolveHaptics } from "./haptics";
-import { useGlassFilter } from "./glass";
 
 const COLLAPSED_STEP = 16;
 const DEFAULT_HEIGHT = 64;
@@ -34,7 +33,6 @@ export function Toaster({
   const [docHidden, setDocHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const glassFilter = useGlassFilter();
   const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => store.subscribe(setToasts), []);
@@ -120,7 +118,6 @@ export function Toaster({
       data-theme={resolvedTheme}
       data-position={position}
       data-rich={richColors ? "" : undefined}
-      data-refract={glassFilter ? "" : undefined}
       dir={dir}
       className={className}
       style={
@@ -136,7 +133,6 @@ export function Toaster({
               : { left: offset }),
           "--glace-blur": `${blur}px`,
           "--glace-gap": `${gap}px`,
-          ...(glassFilter ? { "--glace-refract": `url(#${glassFilter})` } : {}),
         } as unknown as React.CSSProperties
       }
     >

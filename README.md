@@ -4,14 +4,14 @@
 
 **[glaceui.com](https://glaceui.com)** — live demo, playground, and docs.
 
-[![Glacé glass cards refracting a gradient](https://glaceui.com/shots/cards.png)](https://glaceui.com/panels)
+[![Glacé glass cards refracting a gradient](https://cdn.jsdelivr.net/gh/seangeng/glace@main/assets/cards.png)](https://glaceui.com/panels)
 
 <p>
-  <img src="https://glaceui.com/shots/buttons.png" width="49%" alt="Glass buttons" />
-  <img src="https://glaceui.com/shots/profiles.png" width="49%" alt="Edge profiles: convex, concave, bevel" />
+  <img src="https://cdn.jsdelivr.net/gh/seangeng/glace@main/assets/buttons.png" width="49%" alt="Glass buttons" />
+  <img src="https://cdn.jsdelivr.net/gh/seangeng/glace@main/assets/profiles.png" width="49%" alt="Edge profiles: convex, concave, bevel" />
 </p>
 
-[![Glass Lab — tune the refraction](https://glaceui.com/shots/lab.png)](https://glaceui.com/primitives)
+[![Glass Lab — tune the refraction](https://cdn.jsdelivr.net/gh/seangeng/glace@main/assets/lab.png)](https://glaceui.com/primitives)
 
 ```bash
 npm i glaceui

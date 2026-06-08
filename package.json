@@ -1,6 +1,6 @@
 {
   "name": "glaceui",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Glacé — beautiful frosted-glass toasts for React. An opinionated, themeable child of sonner with real glass, springy motion, and optional haptics.",
   "type": "module",
   "license": "MIT",

@@ -24,6 +24,8 @@ interface ToastProps {
   closeButtonDefault: boolean;
   richColors: boolean;
   haptics: { show: number | number[]; action: number | number[]; dismiss: number | number[] } | null;
+  refract?: boolean | number;
+  aberration?: number;
   onHeight: (id: ToastData["id"], h: number) => void;
 }
 
@@ -45,11 +47,16 @@ export function Toast({
   closeButtonDefault,
   richColors,
   haptics,
+  refract = true,
+  aberration,
   onHeight,
 }: ToastProps) {
   const ref = useRef<HTMLLIElement>(null);
   const { backdrop, refracting } = useGlassRefraction(ref, {
     radius: 16,
+    refract: refract !== false,
+    scale: typeof refract === "number" ? refract : undefined,
+    aberration,
     blur: 3,
     fallbackBlur: 16,
     brightness: 1.04,

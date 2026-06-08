@@ -21,6 +21,7 @@ export function GlassLab() {
   const [aberration, setAberration] = useState(6);
   const [blur, setBlur] = useState(3);
   const [radius, setRadius] = useState(28);
+  const [bezelPct, setBezelPct] = useState(16);
   const [map, setMap] = useState<string | null>(null);
   const [pos, setPos] = useState({ x: 120, y: 120 });
   const drag = useRef<{ dx: number; dy: number } | null>(null);
@@ -31,9 +32,9 @@ export function GlassLab() {
 
   // regenerate the map whenever shape/strength changes
   useEffect(() => {
-    const m = buildMap(CARD_W, CARD_H, radius, scale);
+    const m = buildMap(CARD_W, CARD_H, radius, scale, bezelPct / 100);
     if (m) setMap(m);
-  }, [radius, scale]);
+  }, [radius, scale, bezelPct]);
 
   function onDown(e: React.PointerEvent) {
     drag.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y };
@@ -107,6 +108,7 @@ export function GlassLab() {
         <Slider label="Aberration" value={aberration} min={0} max={30} onChange={setAberration} suffix="px" />
         <Slider label="Blur" value={blur} min={0} max={16} onChange={setBlur} suffix="px" />
         <Slider label="Radius" value={radius} min={8} max={64} onChange={setRadius} suffix="px" />
+        <Slider label="Bezel" value={bezelPct} min={4} max={40} onChange={setBezelPct} suffix="%" />
       </div>
       {!refract && (
         <p className="lab-note">

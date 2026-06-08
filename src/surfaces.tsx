@@ -22,8 +22,14 @@ export interface GlassProps extends React.HTMLAttributes<HTMLElement> {
   blur?: number;
   /** Blur used when refraction isn't supported (Safari/Firefox). */
   fallbackBlur?: number;
-  /** Turn refraction off and use plain frosted blur everywhere. */
-  refract?: boolean;
+  /** `false` off · `true` auto · a number sets the edge displacement in px. */
+  refract?: boolean | number;
+  /** Chromatic-aberration split in px (default 1). */
+  aberration?: number;
+  /** Refracting rim thickness as a fraction of the min dimension, 0–0.5 (default 0.16). */
+  bezel?: number;
+  /** Backdrop saturation %, default 180. */
+  saturation?: number;
   /** Lift slightly on hover. */
   interactive?: boolean;
   /** Smoothly morph width/height (spring) when the size changes. */
@@ -43,6 +49,9 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
     blur = 2.5,
     fallbackBlur = 14,
     refract = true,
+    aberration,
+    bezel,
+    saturation,
     interactive = false,
     morph = false,
     className,
@@ -53,7 +62,16 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
   ref,
 ) {
   const inner = useRef<HTMLElement | null>(null);
-  const { backdrop, refracting } = useGlassRefraction(inner, { radius, refract, blur, fallbackBlur });
+  const { backdrop, refracting } = useGlassRefraction(inner, {
+    radius,
+    refract: refract !== false,
+    scale: typeof refract === "number" ? refract : undefined,
+    aberration,
+    bezel,
+    saturation,
+    blur,
+    fallbackBlur,
+  });
   const Tag = (as ?? "div") as React.ElementType;
 
   return (
@@ -96,18 +114,34 @@ export const GlassCard = forwardRef<HTMLElement, GlassCardProps>(function GlassC
 export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   tone?: GlassTone;
   size?: "sm" | "md" | "lg";
-  refract?: boolean;
+  /** `false` off · `true` auto · a number sets the edge displacement in px. */
+  refract?: boolean | number;
+  /** Chromatic-aberration split in px (default 1). */
+  aberration?: number;
+  /** Refracting rim thickness as a fraction of the min dimension (default 0.16). */
+  bezel?: number;
+  /** Backdrop saturation %, default 180. */
+  saturation?: number;
   /** Smoothly morph width (spring) when the label changes. */
   morph?: boolean;
 }
 
 /** A frosted-glass button with a specular rim and a springy press. */
 export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(function GlassButton(
-  { tone = "dark", size = "md", refract = true, morph = false, type = "button", className, style, children, ...rest },
+  { tone = "dark", size = "md", refract = true, aberration, bezel, saturation, morph = false, type = "button", className, style, children, ...rest },
   ref,
 ) {
   const inner = useRef<HTMLElement | null>(null);
-  const { backdrop, refracting } = useGlassRefraction(inner, { radius: 999, refract, blur: 2.5, fallbackBlur: 10 });
+  const { backdrop, refracting } = useGlassRefraction(inner, {
+    radius: 999,
+    refract: refract !== false,
+    scale: typeof refract === "number" ? refract : undefined,
+    aberration,
+    bezel,
+    saturation,
+    blur: 2.5,
+    fallbackBlur: 10,
+  });
 
   return (
     <button

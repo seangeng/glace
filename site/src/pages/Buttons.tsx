@@ -15,7 +15,10 @@ import "glaceui/styles.css";
 const PROPS: [string, string, string][] = [
   ["tone", "light · dark", "dark"],
   ["size", "sm · md · lg", "md"],
-  ["refract", "boolean", "true"],
+  ["refract", "false · true · number (px)", "true"],
+  ["aberration", "chromatic split (px)", "1"],
+  ["bezel", "rim thickness (fraction)", "0.16"],
+  ["saturation", "backdrop saturation (%)", "180"],
   ["morph", "spring width on label change", "false"],
   ["…rest", "all <button> props", "—"],
 ];

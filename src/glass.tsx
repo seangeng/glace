@@ -29,8 +29,15 @@ export function supportsRefraction(): boolean {
   return supportCache;
 }
 
-/** Generate a rounded-rect displacement map (data URL) for a w×h surface. */
-export function buildMap(w: number, h: number, radius: number, scale: number): string | null {
+/** Generate a rounded-rect displacement map (data URL) for a w×h surface.
+ *  `bezel` is the refracting rim thickness as a fraction of the min dimension. */
+export function buildMap(
+  w: number,
+  h: number,
+  radius: number,
+  scale: number,
+  bezel = 0.16,
+): string | null {
   if (typeof document === "undefined") return null;
   // clamp generation size — a 2000px nav is generated at 1400 and stretched
   w = Math.min(Math.max(Math.round(w), 1), MAX_DIM);
@@ -67,7 +74,7 @@ export function buildMap(w: number, h: number, radius: number, scale: number): s
   ctx.globalCompositeOperation = "source-over";
   ctx.restore();
 
-  const border = Math.min(w, h) * 0.16;
+  const border = Math.min(w, h) * bezel;
   ctx.filter = `blur(${Math.round(radius * 0.7)}px)`;
   ctx.fillStyle = "hsla(0,0%,50%,0.92)";
   ctx.beginPath();
@@ -105,20 +112,26 @@ function scaleFor(w: number, h: number): number {
   return Math.min(BASE_SCALE, Math.max(8, Math.min(w, h) * 0.4));
 }
 
-/** Mount (or reuse) a filter for a given size; returns its id or null. */
-function getFilter(w: number, h: number, radius: number): string | null {
+/** Mount (or reuse) a filter for a given size + tuning; returns its id or null. */
+function getFilter(
+  w: number,
+  h: number,
+  radius: number,
+  scale: number,
+  aberr: number,
+  bezel: number,
+): string | null {
   if (typeof document === "undefined" || !supportsRefraction()) return null;
-  const scale = scaleFor(w, h);
-  const key = `${w}x${h}r${radius}s${scale.toFixed(2)}`;
+  const key = `${w}x${h}r${radius}s${scale.toFixed(1)}a${aberr}b${bezel}`;
   const hit = filterCache.get(key);
   if (hit) return hit;
-  const map = buildMap(w, h, radius, scale);
+  const map = buildMap(w, h, radius, scale, bezel);
   if (!map) return null;
   const id = `glace-rx-${++uid}`;
   const wrap = document.createElement("div");
   wrap.setAttribute("aria-hidden", "true");
   wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
-  wrap.innerHTML = filterMarkup(id, map, scale, ABERR);
+  wrap.innerHTML = filterMarkup(id, map, scale, aberr);
   document.body.appendChild(wrap);
   filterCache.set(key, id);
   return id;
@@ -127,6 +140,14 @@ function getFilter(w: number, h: number, radius: number): string | null {
 export interface RefractionOptions {
   radius?: number;
   refract?: boolean;
+  /** Edge displacement in px. Omit to auto-scale to the element. */
+  scale?: number;
+  /** Chromatic-aberration split in px. */
+  aberration?: number;
+  /** Refracting rim thickness as a fraction of the min dimension (0–0.5). */
+  bezel?: number;
+  /** backdrop saturation %, default 180. */
+  saturation?: number;
   blur?: number;
   fallbackBlur?: number;
   brightness?: number;
@@ -142,9 +163,19 @@ export function useGlassRefraction(
   ref: { current: HTMLElement | null },
   opts: RefractionOptions = {},
 ): { backdrop: string; refracting: boolean } {
-  const { radius = 16, refract = true, blur = 2.5, fallbackBlur = 14, brightness = 1.03 } = opts;
+  const {
+    radius = 16,
+    refract = true,
+    scale,
+    aberration = ABERR,
+    bezel = 0.16,
+    saturation = 180,
+    blur = 2.5,
+    fallbackBlur = 14,
+    brightness = 1.03,
+  } = opts;
   const [state, setState] = useState({
-    backdrop: `blur(${fallbackBlur}px) saturate(180%)`,
+    backdrop: `blur(${fallbackBlur}px) saturate(${saturation}%)`,
     refracting: false,
   });
 
@@ -159,13 +190,14 @@ export function useGlassRefraction(
       const w = Math.round(el.offsetWidth);
       const h = Math.round(el.offsetHeight);
       if (!w || !h) return; // not laid out yet — ResizeObserver / rAF will retry
-      const key = `${w}x${h}r${radius}`;
+      const sc = Math.min(Math.max(scale ?? scaleFor(w, h), 4), Math.min(w, h) * 0.5);
+      const key = `${w}x${h}r${radius}s${sc.toFixed(1)}a${aberration}b${bezel}`;
       if (key === lastKey) return;
       lastKey = key;
-      const id = getFilter(w, h, radius);
+      const id = getFilter(w, h, radius, sc, aberration, bezel);
       if (!id) return;
       setState({
-        backdrop: `url(#${id}) blur(${blur}px) saturate(180%) brightness(${brightness})`,
+        backdrop: `url(#${id}) blur(${blur}px) saturate(${saturation}%) brightness(${brightness})`,
         refracting: true,
       });
     };
@@ -184,7 +216,7 @@ export function useGlassRefraction(
       cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refract, radius, blur, fallbackBlur, brightness]);
+  }, [refract, radius, scale, aberration, bezel, saturation, blur, fallbackBlur, brightness]);
 
   return state;
 }
@@ -196,7 +228,7 @@ export function useGlassRefraction(
 export function useGlassFilter(): string | null {
   const [id, setId] = useState<string | null>(null);
   useEffect(() => {
-    setId(getFilter(REF_W, REF_H, REF_RADIUS));
+    setId(getFilter(REF_W, REF_H, REF_RADIUS, scaleFor(REF_W, REF_H), ABERR, 0.16));
   }, []);
   return id;
 }

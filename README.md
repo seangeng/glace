@@ -101,7 +101,7 @@ import { GlassButton } from "glaceui";
 <GlassButton morph>{open ? "Collapse" : "Expand"}</GlassButton>  // width springs on change
 ```
 
-Props: `tone` (`light`/`dark`), `size` (`sm`/`md`/`lg`), `refract`, `morph`, plus all `<button>` props.
+Props: `tone` (`light`/`dark`), `size` (`sm`/`md`/`lg`), `refract` (`false`/`true`/px), `aberration`, `bezel`, `saturation`, `morph`, plus all `<button>` props.
 
 ## Panels — `<GlassCard>`
 
@@ -128,7 +128,19 @@ import { Glass, useGlassFilter } from "glaceui";
 <Glass as="aside" morph>…liquid-resizes without distortion…</Glass>
 ```
 
-Props: `as` (default `div`), `tone`, `radius` (px), `blur` (refraction-path, default `3`), `fallbackBlur` (default `14`), `refract`, `interactive`, `morph`. One shared SVG displacement filter is mounted lazily and reused by every glass surface — including the toasts — so the whole kit refracts consistently and cheaply.
+**Tuning the refraction** — the same knobs the [Glass Lab](https://glaceui.com/primitives) exposes are props on every surface (`Glass`, `GlassCard`, `GlassButton`, `Toaster`):
+
+```tsx
+<Glass
+  refract={80}     // edge displacement in px — or true (auto) / false (off)
+  aberration={6}   // chromatic fringe at the rim
+  bezel={0.16}     // rim thickness, as a fraction of the shorter side
+  blur={3}         // backdrop blur
+  radius={28}      // corner radius
+/>
+```
+
+Full `<Glass>` props: `as` (default `div`), `tone`, `radius`, `refract` (`false`/`true`/px), `aberration` (1), `bezel` (0.16), `blur` (3), `saturation` (180), `fallbackBlur` (14), `interactive`, `morph`. Displacement maps + their SVG filters are generated per element size and **cached by size+tuning**, so every same-sized surface — including the toasts — shares one filter.
 
 ## Theming
 

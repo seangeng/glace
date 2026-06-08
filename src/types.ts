@@ -88,7 +88,11 @@ export interface ToasterProps {
   closeButton?: boolean;
   /** Blur radius of the glass in px. Defaults to 16. */
   blur?: number;
-  /** Haptic feedback config (opt-in). */
+  /** Edge refraction: `false` off · `true` auto · a number sets displacement in px. Defaults to true. */
+  refract?: boolean | number;
+  /** Chromatic-aberration split in px. Defaults to 1. */
+  aberration?: number;
+  /** Haptic feedback config. Defaults to true. */
   haptics?: boolean | HapticsOptions;
   /** Applied to every toast. */
   toastOptions?: Pick<ToastOptions, "duration" | "className" | "style" | "closeButton">;

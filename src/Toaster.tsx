@@ -19,6 +19,8 @@ export function Toaster({
   duration = 4000,
   closeButton = false,
   blur = 16,
+  refract = true,
+  aberration,
   haptics = true,
   toastOptions,
   className,
@@ -168,6 +170,8 @@ export function Toaster({
             closeButtonDefault={toastOptions?.closeButton ?? closeButton}
             richColors={richColors}
             haptics={hapticsResolved}
+            refract={refract}
+            aberration={aberration}
             onHeight={setHeight}
           />
         ))}

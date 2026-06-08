@@ -67,6 +67,8 @@ const PROPS: [string, string, string][] = [
   ["duration", "ms before auto-close", "4000"],
   ["closeButton", "boolean", "false"],
   ["blur", "glass blur radius (px)", "16"],
+  ["refract", "false · true · number (px)", "true"],
+  ["aberration", "chromatic split (px)", "1"],
   ["haptics", "boolean | HapticsOptions", "true"],
 ];
 

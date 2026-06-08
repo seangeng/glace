@@ -7,9 +7,17 @@ function cx(...parts: (string | false | undefined | null)[]): string {
 
 const useIso = typeof document !== "undefined" ? useLayoutEffect : useEffect;
 
-// spring easing with a little overshoot — matches --glace-spring
-const MORPH_SPRING =
-  "linear(0, 0.009, 0.035 4.7%, 0.16, 0.28 12.7%, 0.72 24.5%, 0.92, 1.012, 1.044, 1.046, 1.031, 1.014, 1.004, 0.998, 0.997, 1)";
+// On-screen size morph → smooth deceleration, no overshoot (a bounce reads as
+// wobble here). ease-out-quint-ish.
+const MORPH_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+const MORPH_DURATION = 360;
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  );
+}
 
 /**
  * Smoothly morph an element's width when its CONTENT changes. A CSS width
@@ -31,10 +39,10 @@ function useMorphWidth(ref: { current: HTMLElement | null }, enabled: boolean) {
     el.style.width = restore;
     const prev = last.current;
     last.current = target;
-    if (prev == null || Math.abs(prev - target) < 0.5) return;
+    if (prev == null || Math.abs(prev - target) < 0.5 || prefersReducedMotion()) return;
     const anim = el.animate(
       [{ width: `${prev}px` }, { width: `${target}px` }],
-      { duration: 520, easing: MORPH_SPRING },
+      { duration: MORPH_DURATION, easing: MORPH_EASE },
     );
     return () => anim.cancel();
   });

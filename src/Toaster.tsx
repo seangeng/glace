@@ -20,7 +20,7 @@ export function Toaster({
   duration = 4000,
   closeButton = false,
   blur = 16,
-  haptics,
+  haptics = true,
   toastOptions,
   className,
   style,

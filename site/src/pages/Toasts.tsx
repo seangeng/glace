@@ -67,7 +67,7 @@ const PROPS: [string, string, string][] = [
   ["duration", "ms before auto-close", "4000"],
   ["closeButton", "boolean", "false"],
   ["blur", "glass blur radius (px)", "16"],
-  ["haptics", "boolean | HapticsOptions", "false"],
+  ["haptics", "boolean | HapticsOptions", "true"],
 ];
 
 export function Toasts() {

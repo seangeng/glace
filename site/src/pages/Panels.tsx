@@ -1,6 +1,7 @@
 import { GlassButton, GlassCard, toast } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
-import { PageHead, PropsTable, Section, Stage } from "../ui";
+import { DragArea, Draggable } from "../Draggable";
+import { PageHead, PropsTable, Section } from "../ui";
 
 const USAGE = `import { GlassCard, GlassButton } from "glaceui";
 import "glaceui/styles.css";
@@ -27,22 +28,24 @@ export function Panels() {
         catches light along the rim, and lifts on hover when <code>interactive</code>.
       </PageHead>
 
-      <Section title="Cards" sub="Dark and light tones, with an interactive lift.">
-        <Stage>
-          <div className="panels-grid">
-            <GlassCard interactive className="demo-card">
+      <Section title="Cards" sub="Dark and light tones — drag them over the grid to watch the glass refract.">
+        <DragArea height={400}>
+          <Draggable x={24} y={48}>
+            <GlassCard className="demo-card" style={{ width: 300 }}>
               <div className="demo-card-eyebrow">Interactive</div>
               <div className="demo-card-title">Wrap anything</div>
-              <p>A padded frosted surface. Hover to lift, press to settle.</p>
+              <p>A padded frosted surface. Drag it around to study the edges.</p>
               <GlassButton size="sm" onClick={() => toast("From inside a card")}>Action</GlassButton>
             </GlassCard>
-            <GlassCard tone="light" className="demo-card">
+          </Draggable>
+          <Draggable x={372} y={150}>
+            <GlassCard tone="light" className="demo-card" style={{ width: 270 }}>
               <div className="demo-card-eyebrow">tone="light"</div>
               <div className="demo-card-title">Light glass</div>
               <p>The same surface, tuned for bright backgrounds.</p>
             </GlassCard>
-          </div>
-        </Stage>
+          </Draggable>
+        </DragArea>
       </Section>
 
       <Section title="Usage">

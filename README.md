@@ -86,7 +86,7 @@ toast.dismiss(id); // or toast.dismiss() to clear all
 | `duration` | `number` | `4000` | default ms before auto-dismiss |
 | `closeButton` | `boolean` | `false` | show an × on every toast |
 | `blur` | `number` | `16` | glass blur radius in px |
-| `haptics` | `boolean \| HapticsOptions` | `false` | opt-in vibration feedback |
+| `haptics` | `boolean \| HapticsOptions` | `true` | vibration feedback (no-op where unsupported) |
 | `toastOptions` | `{ duration, className, style, closeButton }` | — | defaults applied to every toast |
 
 ## Buttons — `<GlassButton>`
@@ -151,7 +151,9 @@ toast("Custom", { className: "my-toast", style: { "--glace-radius": "22px" } });
 
 ## Haptics
 
-Off by default. Flip it on, or tune the patterns:
+On by default — a light buzz on appear / action / dismiss, a no-op where the
+Vibration API isn't available (iOS Safari, most desktops). Pass `haptics={false}`
+to turn it off, or tune the patterns:
 
 ```tsx
 <Toaster haptics />

@@ -63,7 +63,7 @@ button { font-family: inherit; }
 }
 
 /* ── glass surfaces ───────────────────────────────────────────────────── */
-.nav,
+/* .nav glass now comes from the library <Glass> component (real refraction) */
 .panel {
   background: var(--glass-bg);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
@@ -442,3 +442,27 @@ button { font-family: inherit; }
 .lab-slider-val { color: var(--fg); }
 .lab-slider input[type="range"] { width: 100%; accent-color: #fafafa; }
 .lab-note { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+
+/* ── Kit showcase (Glass / GlassButton / GlassCard) ───────────────────── */
+.kit-stage {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  padding: 40px 28px;
+  background:
+    radial-gradient(60% 80% at 50% 0%, rgba(255, 255, 255, 0.05), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M12 9v6M9 12h6' stroke='%23ffffff' stroke-opacity='0.2' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E"),
+    #08080a;
+  background-size: auto, 24px 24px, auto;
+}
+.kit-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; }
+.kit-cards { margin-top: 26px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .kit-cards { grid-template-columns: 1fr; } }
+.kit-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px; }
+.kit-card p { margin: 0 0 4px; font-size: 0.88rem; opacity: 0.72; line-height: 1.45; }
+.kit-card-eyebrow { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.5; }
+.kit-card-title { font-size: 1.05rem; font-weight: 560; letter-spacing: -0.01em; }
+.kit-card--light { justify-content: center; }
+.kit-code { margin-top: 22px; }
+.kit-ref-title { margin: 34px 0 12px; font-size: 1.05rem; font-weight: 560; letter-spacing: -0.01em; }

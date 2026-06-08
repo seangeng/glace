@@ -1,6 +1,6 @@
 # Glacé 🧊
 
-**Beautiful frosted-glass toasts for React.** An opinionated little notification library — real layered glass, springy stacking, swipe-to-dismiss, light/dark out of the box, and optional haptics. Think [sonner](https://sonner.emilkowal.ski/), wearing glass.
+**A frosted-glass UI kit for React.** Real edge refraction, springy motion, light/dark, and optional haptics — as a tiny, opinionated kit. Ships toasts, a glass button, and a `<Glass>` surface primitive you can wrap anything in. Think [sonner](https://sonner.emilkowal.ski/), wearing glass.
 
 **[glaceui.com](https://glaceui.com)** — live demo, playground, and docs.
 
@@ -32,7 +32,7 @@ Most toast libraries are either gorgeous-but-rigid or flexible-but-plain. Glacé
 
 ## Features
 
-- 🧊 **Real glass** — `backdrop-filter` blur + saturate, layered inset highlight, grain, and soft shadow (the [Aave glass recipe](https://aave.com/design/building-glass-for-the-web)).
+- 🧊 **Real glass** — edges that *refract*: an SVG displacement map bends the backdrop at the rim (the [Aave glass recipe](https://aave.com/design/building-glass-for-the-web)), with a specular highlight and only a little blur. Degrades to frosted blur where unsupported.
 - 🌗 **Light / dark / system** — looks right on both, automatically.
 - 🪄 **Springy stack** — toasts collapse behind each other and fan open on hover, sonner-style.
 - 👆 **Swipe to dismiss** — pointer-driven, works on touch and trackpad.
@@ -88,6 +88,29 @@ toast.dismiss(id); // or toast.dismiss() to clear all
 | `blur` | `number` | `16` | glass blur radius in px |
 | `haptics` | `boolean \| HapticsOptions` | `false` | opt-in vibration feedback |
 | `toastOptions` | `{ duration, className, style, closeButton }` | — | defaults applied to every toast |
+
+## Glass primitives
+
+The same refraction that powers the toasts is exposed directly — use it anywhere.
+
+```tsx
+import { Glass, GlassCard, GlassButton } from "glaceui";
+import "glaceui/styles.css";
+
+// a frosted button — refracts the backdrop at its edges
+<GlassButton size="md" onClick={save}>Save</GlassButton>
+
+// a padded glass container
+<GlassCard tone="dark" interactive>
+  <h3>Pricing</h3>
+  <p>Wrap anything in real glass.</p>
+</GlassCard>
+
+// the raw surface — render any element via `as`
+<Glass as="section" tone="light" radius={24}>…</Glass>
+```
+
+`<Glass>` props: `as` (default `div`), `tone` (`light`/`dark`), `radius` (px), `blur` (refraction-path blur, default `3`), `fallbackBlur` (default `14`), `refract` (default `true`), `interactive` (lift on hover). `<GlassButton>` adds `size` (`sm`/`md`/`lg`). One shared SVG filter is mounted lazily and reused by every glass surface — including the toasts.
 
 ## Theming
 

@@ -1,25 +1,25 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * True Apple-style "liquid glass" refraction for the toasts.
+ * Shared "liquid glass" foundation for every Glacé surface.
  *
- * Rather than leaning on a big backdrop blur, we bend the backdrop at the rim
- * with an SVG displacement map — the technique behind Aave's glass (and the
- * shuding / rdev / rizroze implementations). A canvas builds a map where the
- * red channel encodes horizontal bend and the blue channel vertical bend (128 =
- * neutral); the center is neutralised so only the edge band refracts. Three
- * displacement passes at slightly different scales add a faint chromatic fringe.
- *
- * Units are userSpaceOnUse, so `scale` is in real pixels. `url()` filters inside
- * backdrop-filter are Chromium-only, so we feature-detect and only opt in there;
- * everywhere else the CSS falls back to a plain frosted blur.
+ * One global SVG displacement filter is mounted lazily (the first time any glass
+ * element renders) and reused everywhere. It bends the backdrop at the rim — the
+ * Aave / rizroze technique: a canvas map (R = x-bend, B = y-bend, neutral
+ * center) drives a 3-pass chromatic feDisplacementMap. `url()` filters in
+ * backdrop-filter are Chromium-only, so we feature-detect; elsewhere callers
+ * fall back to a plain frosted blur.
  */
 
-const SCALE = 34; // px of edge displacement
-const ABERRATION = 3; // px split between R/G/B passes
+const FILTER_ID = "glace-glass";
+const SCALE = 34;
+const ABERRATION = 3;
 const REF_W = 356;
 const REF_H = 84;
 const REF_RADIUS = 16;
+
+// undefined = not yet attempted, null = unsupported, string = mounted filter id
+let cached: string | null | undefined;
 
 function buildMap(w: number, h: number, radius: number, scale: number): string | null {
   if (typeof document === "undefined") return null;
@@ -32,10 +32,9 @@ function buildMap(w: number, h: number, radius: number, scale: number): string |
   const ctx = cv.getContext("2d");
   if (!ctx || !ctx.roundRect) return null;
 
-  ctx.fillStyle = "rgb(128,128,128)"; // neutral = no displacement
+  ctx.fillStyle = "rgb(128,128,128)";
   ctx.fillRect(0, 0, cw, ch);
 
-  // 2-axis field inside the rounded rect: R = horizontal, B = vertical
   ctx.save();
   ctx.beginPath();
   ctx.roundRect(pad, pad, w, h, radius);
@@ -56,7 +55,6 @@ function buildMap(w: number, h: number, radius: number, scale: number): string |
   ctx.globalCompositeOperation = "source-over";
   ctx.restore();
 
-  // neutralise the center → leaves a refracting rim band
   const border = Math.min(w, h) * 0.16;
   ctx.filter = `blur(${Math.round(radius * 0.7)}px)`;
   ctx.fillStyle = "hsla(0,0%,50%,0.92)";
@@ -76,43 +74,52 @@ function supportsRefraction(): boolean {
   );
 }
 
-export function GlassFilter({ onReady }: { onReady: (id: string | null) => void }) {
-  const rawId = useId();
-  const id = `glace-glass-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const [map, setMap] = useState<string | null>(null);
+/** Mount the global filter once; returns its id, or null if unsupported. */
+function ensureGlassFilter(): string | null {
+  if (cached !== undefined) return cached;
+  if (typeof document === "undefined" || !supportsRefraction()) {
+    cached = null;
+    return null;
+  }
+  const map = buildMap(REF_W, REF_H, REF_RADIUS, SCALE);
+  if (!map) {
+    cached = null;
+    return null;
+  }
+  const wrap = document.createElement("div");
+  wrap.setAttribute("aria-hidden", "true");
+  wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
+  wrap.innerHTML = `<svg><defs><filter id="${FILTER_ID}" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+<feImage href="${map}" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(SCALE + ABERRATION)}" result="r"/>
+<feColorMatrix in="r" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="rc"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-SCALE}" result="g"/>
+<feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="gc"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(SCALE - ABERRATION)}" result="b"/>
+<feColorMatrix in="b" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="bc"/>
+<feBlend in="rc" in2="gc" mode="screen" result="rg"/>
+<feBlend in="rg" in2="bc" mode="screen"/>
+</filter></defs></svg>`;
+  document.body.appendChild(wrap);
+  cached = FILTER_ID;
+  return FILTER_ID;
+}
 
+/**
+ * Returns the global glass filter id once mounted (client-side), or null if the
+ * browser can't refract. SSR-safe: null on first render, resolves after mount.
+ */
+export function useGlassFilter(): string | null {
+  const [id, setId] = useState<string | null>(null);
   useEffect(() => {
-    if (!supportsRefraction()) {
-      onReady(null);
-      return;
-    }
-    const m = buildMap(REF_W, REF_H, REF_RADIUS, SCALE);
-    if (!m) {
-      onReady(null);
-      return;
-    }
-    setMap(m);
-    onReady(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setId(ensureGlassFilter());
   }, []);
+  return id;
+}
 
-  if (!map) return null;
-
-  return (
-    <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}>
-      <defs>
-        <filter id={id} colorInterpolationFilters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
-          <feImage href={map} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
-          <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-(SCALE + ABERRATION)} result="r" />
-          <feColorMatrix in="r" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="rc" />
-          <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-SCALE} result="g" />
-          <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="gc" />
-          <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-(SCALE - ABERRATION)} result="b" />
-          <feColorMatrix in="b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="bc" />
-          <feBlend in="rc" in2="gc" mode="screen" result="rg" />
-          <feBlend in="rg" in2="bc" mode="screen" />
-        </filter>
-      </defs>
-    </svg>
-  );
+/** Build the `backdrop-filter` value for a glass surface. */
+export function glassBackdrop(filterId: string | null, blur: number, fallbackBlur: number): string {
+  return filterId
+    ? `url(#${filterId}) blur(${blur}px) saturate(180%) brightness(1.04)`
+    : `blur(${fallbackBlur}px) saturate(180%)`;
 }

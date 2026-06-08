@@ -4,7 +4,7 @@ import type { Position, ToastData, ToasterProps } from "./types";
 import { store } from "./state";
 import { Toast } from "./Toast";
 import { resolveHaptics } from "./haptics";
-import { GlassFilter } from "./glass";
+import { useGlassFilter } from "./glass";
 
 const COLLAPSED_STEP = 16;
 const DEFAULT_HEIGHT = 64;
@@ -34,7 +34,7 @@ export function Toaster({
   const [docHidden, setDocHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const [glassFilter, setGlassFilter] = useState<string | null>(null);
+  const glassFilter = useGlassFilter();
   const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => store.subscribe(setToasts), []);
@@ -140,7 +140,6 @@ export function Toaster({
         } as unknown as React.CSSProperties
       }
     >
-      <GlassFilter onReady={setGlassFilter} />
       <ol
         ref={listRef}
         data-expanded={expanded ? "" : undefined}

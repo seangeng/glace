@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Toaster, toast } from "glaceui";
+import { Glass, GlassButton, GlassCard, Toaster, toast } from "glaceui";
 import { CodeBlock } from "./CodeBlock";
 import { Playground, type ToasterConfig } from "./Playground";
 import { GlassLab } from "./GlassLab";
@@ -60,6 +60,35 @@ const HAPTICS = `// off by default — opt in, or tune the patterns
 <Toaster haptics />
 <Toaster haptics={{ enabled: true, show: 8, action: [6, 10, 6], dismiss: 4 }} />`;
 
+const KIT = `import { Glass, GlassCard, GlassButton } from "glaceui";
+import "glaceui/styles.css";
+
+// a frosted button — refracts the backdrop at its edges
+<GlassButton size="md" onClick={() => toast("Nice")}>
+  Glass button
+</GlassButton>
+
+// a padded glass container
+<GlassCard tone="dark" interactive>
+  <h3>Pricing</h3>
+  <p>Wrap anything in real glass.</p>
+</GlassCard>
+
+// the raw primitive — any element, any size, any radius
+<Glass as="section" tone="light" radius={24}>
+  …your content…
+</Glass>`;
+
+const GLASS_PROPS: [string, string, string][] = [
+  ["as", "element type", "div"],
+  ["tone", "light · dark", "dark"],
+  ["radius", "corner radius (px)", "16"],
+  ["blur", "refraction-path blur (px)", "3"],
+  ["fallbackBlur", "blur where refraction is unsupported", "14"],
+  ["refract", "boolean", "true"],
+  ["interactive", "lift on hover", "false"],
+];
+
 const PROPS: [string, string, string][] = [
   ["position", "6 corners / edges", "bottom-right"],
   ["theme", "light · dark · system", "system"],
@@ -119,7 +148,7 @@ export function App() {
     <div className="page">
       <div className="bg" aria-hidden />
 
-      <nav className="nav">
+      <Glass as="nav" tone="dark" radius={14} className="nav">
         <a className="brand" href="/">
           <Mark className="brand-mark" />
           <span>Glacé</span>
@@ -129,15 +158,16 @@ export function App() {
           <a href="https://github.com/seangeng/glace" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://www.npmjs.com/package/glaceui" target="_blank" rel="noreferrer">npm</a>
         </div>
-      </nav>
+      </Glass>
 
       <header className="hero">
-        <Eyebrow>A React toast library</Eyebrow>
-        <h1>Frosted-glass toasts for React.</h1>
+        <Eyebrow>A React glass UI kit</Eyebrow>
+        <h1>Frosted glass for React.</h1>
         <p className="lede">
-          An opinionated little notification library — real layered glass, springy
-          stacking, swipe-to-dismiss, light and dark out of the box, and optional
-          haptics. Like <a href="https://sonner.emilkowal.ski/" target="_blank" rel="noreferrer">sonner</a>, wearing glass.
+          Real edge refraction, springy motion, light and dark, optional haptics —
+          as a tiny, opinionated kit. Toasts, buttons, and a <code>&lt;Glass&gt;</code>{" "}
+          surface you can wrap anything in. Like{" "}
+          <a href="https://sonner.emilkowal.ski/" target="_blank" rel="noreferrer">sonner</a>, wearing glass.
         </p>
         <div className="hero-btns">
           <button
@@ -167,6 +197,60 @@ export function App() {
             <p>{body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="block">
+        <Eyebrow>Beyond toasts</Eyebrow>
+        <h2>A whole glass kit.</h2>
+        <p className="sub">
+          The refraction that powers the toasts is a primitive you can use directly — a
+          surface, a card, a button. Same edge-bending glass, anywhere.
+        </p>
+
+        <div className="kit-stage">
+          <div className="kit-row">
+            <GlassButton size="sm" onClick={() => toast("Small glass button")}>Small</GlassButton>
+            <GlassButton size="md" onClick={() => toast.success("Pressed the glass")}>Glass button</GlassButton>
+            <GlassButton size="lg" onClick={() => toast("Large glass button")}>Large</GlassButton>
+          </div>
+
+          <div className="kit-cards">
+            <GlassCard interactive className="kit-card">
+              <div className="kit-card-eyebrow">&lt;GlassCard /&gt;</div>
+              <div className="kit-card-title">Wrap anything</div>
+              <p>A padded frosted surface. Edges refract, the rim catches light, hover lifts it.</p>
+              <GlassButton size="sm" onClick={() => toast("From inside a card")}>Action</GlassButton>
+            </GlassCard>
+
+            <Glass as="div" tone="light" radius={18} className="kit-card kit-card--light">
+              <div className="kit-card-eyebrow">tone="light"</div>
+              <div className="kit-card-title">Light glass</div>
+              <p>The same surface, tuned for bright backgrounds.</p>
+            </Glass>
+          </div>
+        </div>
+
+        <div className="kit-code">
+          <CodeBlock code={KIT} />
+        </div>
+
+        <h3 className="kit-ref-title">&lt;Glass /&gt; props</h3>
+        <div className="panel">
+          <table className="props">
+            <thead>
+              <tr><th>Prop</th><th>Type</th><th>Default</th></tr>
+            </thead>
+            <tbody>
+              {GLASS_PROPS.map(([p, t, d]) => (
+                <tr key={p}>
+                  <td><code>{p}</code></td>
+                  <td>{t}</td>
+                  <td><code>{d}</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="block">

@@ -309,8 +309,42 @@
 /* GlassCard */
 .glace-card { padding: 20px; }
 
+/* ── Sheen — a specular streak that sweeps on hover/press (Petr Knoll / b3) ── */
+@property --glace-sheen-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: -45deg;
+}
+.glace-glass--sheen > :not(.glace-sheen) { position: relative; z-index: 1; }
+.glace-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    var(--glace-sheen-angle, -45deg),
+    transparent 0%,
+    rgba(255, 255, 255, 0.42) 40% 50%,
+    transparent 58%
+  );
+  background-size: 220% 220%;
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.65;
+  transition:
+    background-position 0.55s var(--glace-spring),
+    --glace-sheen-angle 0.55s var(--glace-spring),
+    opacity 0.3s ease;
+}
+.glace-glass--sheen:hover .glace-sheen { background-position: 32% 50%; opacity: 0.95; }
+.glace-glass--sheen:active .glace-sheen { background-position: 56% 16%; --glace-sheen-angle: -14deg; opacity: 1; }
+
 /* GlassButton (distinct from the toast's internal .glace-btn action buttons) */
 .glace-gbtn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -321,12 +355,34 @@
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
-  transition: transform 0.5s var(--glace-spring), filter 0.15s ease;
+  transform-origin: center;
+  /* thickness: light top rim, soft dark underside */
+  box-shadow:
+    var(--g-shadow),
+    inset 0 1px 0.5px var(--g-highlight),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.22);
+  transition:
+    transform 0.5s var(--glace-spring),
+    box-shadow 0.3s var(--glace-spring),
+    filter 0.15s ease;
 }
-.glace-gbtn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.glace-gbtn:active { transform: scale(0.95); transition-duration: 0.13s; }
+.glace-gbtn:hover { filter: brightness(1.06); transform: scale(0.985); }
+/* press: tip back in 3D + sink the shadow in, like the glass is pushed */
+.glace-gbtn:active {
+  transform: perspective(440px) rotateX(13deg) scale(0.955);
+  transition-duration: 0.14s;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 2px 3px rgba(0, 0, 0, 0.28),
+    inset 0 -1px 1px var(--g-highlight);
+}
 .glace-gbtn:focus-visible { outline: 2px solid var(--g-highlight); outline-offset: 2px; }
-.glace-gbtn-label { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; }
+.glace-gbtn-label { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; transition: text-shadow 0.3s ease; }
+.glace-gbtn:active .glace-gbtn-label { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28); }
 .glace-gbtn--sm { padding: 7px 15px; font-size: 13px; }
 .glace-gbtn--md { padding: 10px 20px; font-size: 14px; }
 .glace-gbtn--lg { padding: 13px 26px; font-size: 16px; }
+@media (prefers-reduced-motion: reduce) {
+  .glace-sheen { transition: opacity 0.2s ease; }
+  .glace-gbtn:active { transform: scale(0.97); }
+}

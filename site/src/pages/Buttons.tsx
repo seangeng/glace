@@ -27,8 +27,9 @@ export function Buttons() {
   return (
     <div className="prose-page">
       <PageHead eyebrow="Component" title="Buttons">
-        A frosted-glass button built on the <code>&lt;Glass&gt;</code> surface — a specular rim,
-        a springy liquid press, and real edge refraction.
+        A frosted-glass button built on the <code>&lt;Glass&gt;</code> surface — real edge
+        refraction, a specular sheen that sweeps as you hover, and a press that tips the glass
+        back in 3D and sinks the shadow in. Hold one down to feel it.
       </PageHead>
 
       <Section title="Sizes" sub="Three sizes, pill-shaped.">

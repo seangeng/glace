@@ -101,7 +101,9 @@ import { GlassButton } from "glaceui";
 <GlassButton morph>{open ? "Collapse" : "Expand"}</GlassButton>  // width springs on change
 ```
 
-Props: `tone` (`light`/`dark`), `size` (`sm`/`md`/`lg`), `refract` (`false`/`true`/px), `aberration`, `bezel`, `saturation`, `morph`, plus all `<button>` props.
+Every button has a specular **sheen** that sweeps on hover and a **3D press** that tips the glass back. Props: `tone` (`light`/`dark`), `size` (`sm`/`md`/`lg`), `refract` (`false`/`true`/px), `aberration`, `bezel`, `saturation`, `morph`, plus all `<button>` props.
+
+`GlassCard` / `Glass` take a **`sheen`** prop for the same swept highlight on hover/press.
 
 ## Panels — `<GlassCard>`
 

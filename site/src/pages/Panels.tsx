@@ -16,7 +16,8 @@ const PROPS: [string, string, string][] = [
   ["tone", "light · dark", "dark"],
   ["radius", "corner radius (px)", "18"],
   ["interactive", "lift on hover", "false"],
-  ["refract", "boolean", "true"],
+  ["sheen", "specular sweep on hover/press", "false"],
+  ["refract", "false · true · number (px)", "true"],
   ["…rest", "all div props (or via `as`)", "—"],
 ];
 
@@ -31,15 +32,15 @@ export function Panels() {
       <Section title="Cards" sub="Dark and light tones — drag them over the grid to watch the glass refract.">
         <DragArea height={400}>
           <Draggable x={24} y={48}>
-            <GlassCard className="demo-card" style={{ width: 300 }}>
-              <div className="demo-card-eyebrow">Interactive</div>
+            <GlassCard sheen className="demo-card" style={{ width: 300 }}>
+              <div className="demo-card-eyebrow">sheen</div>
               <div className="demo-card-title">Wrap anything</div>
-              <p>A padded frosted surface. Drag it around to study the edges.</p>
+              <p>A padded frosted surface. Hover or grab it — the sheen sweeps across.</p>
               <GlassButton size="sm" onClick={() => toast("From inside a card")}>Action</GlassButton>
             </GlassCard>
           </Draggable>
           <Draggable x={372} y={150}>
-            <GlassCard tone="light" className="demo-card" style={{ width: 270 }}>
+            <GlassCard tone="light" sheen className="demo-card" style={{ width: 270 }}>
               <div className="demo-card-eyebrow">tone="light"</div>
               <div className="demo-card-title">Light glass</div>
               <p>The same surface, tuned for bright backgrounds.</p>

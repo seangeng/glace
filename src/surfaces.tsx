@@ -34,6 +34,8 @@ export interface GlassProps extends React.HTMLAttributes<HTMLElement> {
   interactive?: boolean;
   /** Smoothly morph width/height (spring) when the size changes. */
   morph?: boolean;
+  /** A specular sheen that sweeps across on hover/press. */
+  sheen?: boolean;
 }
 
 /**
@@ -54,6 +56,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
     saturation,
     interactive = false,
     morph = false,
+    sheen = false,
     className,
     style,
     children,
@@ -84,6 +87,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
         "glace-glass",
         interactive && "glace-glass--interactive",
         morph && "glace-glass--morph",
+        sheen && "glace-glass--sheen",
         className,
       )}
       data-tone={tone}
@@ -96,6 +100,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
       }}
       {...rest}
     >
+      {sheen && <span className="glace-sheen" aria-hidden="true" />}
       {children}
     </Tag>
   );
@@ -150,12 +155,20 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
         assignRef(ref, node);
       }}
       type={type}
-      className={cx("glace-glass", "glace-gbtn", `glace-gbtn--${size}`, morph && "glace-glass--morph", className)}
+      className={cx(
+        "glace-glass",
+        "glace-gbtn",
+        `glace-gbtn--${size}`,
+        "glace-glass--sheen",
+        morph && "glace-glass--morph",
+        className,
+      )}
       data-tone={tone}
       data-refract={refracting ? "" : undefined}
       style={{ backdropFilter: backdrop, WebkitBackdropFilter: backdrop, ...style }}
       {...rest}
     >
+      <span className="glace-sheen" aria-hidden="true" />
       <span className="glace-gbtn-label">{children}</span>
     </button>
   );

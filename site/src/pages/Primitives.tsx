@@ -31,6 +31,7 @@ const PROPS: [string, string, string][] = [
   ["saturation", "backdrop saturation (%)", "180"],
   ["fallbackBlur", "blur where refraction is unsupported", "14"],
   ["interactive", "lift on hover", "false"],
+  ["sheen", "specular streak that sweeps on hover/press", "false"],
   ["morph", "spring width/height on size change", "false"],
 ];
 

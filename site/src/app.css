@@ -725,3 +725,8 @@ button { font-family: inherit; }
 .ctrl-label { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); }
 .pg-card { width: 280px; display: flex; flex-direction: column; gap: 4px; padding: 18px; }
 .pg-card p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.72; line-height: 1.45; }
+
+/* ── Home live showcase ───────────────────────────────────────────────── */
+.ov-live { margin: 34px 0 8px; }
+.ov-live-card { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 18px; }
+.ov-live-card p { margin: 2px 0 10px; font-size: 0.88rem; opacity: 0.78; line-height: 1.45; }

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { toast } from "glaceui";
+import { GlassButton, GlassCard, toast } from "glaceui";
+import { Draggable } from "../Draggable";
+import { ShuffleStage } from "../ShuffleStage";
 import { Eyebrow, InstallChip } from "../ui";
 import { ArrowUpRight, Phone, Sparkles, Stack, SunMoon, Swatch, Swipe } from "../Icons";
 
@@ -44,9 +46,18 @@ export function Overview() {
         </div>
       </header>
 
-      <Link to="/panels" className="ov-showcase">
-        <img src="/shots/cards.png" alt="Glass cards refracting a colorful gradient" loading="eager" />
-      </Link>
+      <div className="ov-live">
+        <ShuffleStage height={340}>
+          <Draggable x={120} y={70}>
+            <GlassCard refract={62} sheen className="ov-live-card" style={{ width: 340 }}>
+              <div className="demo-card-eyebrow">drag me · shuffle the backdrop</div>
+              <div className="demo-card-title">Real glass</div>
+              <p>The edges refract the gradient behind them — not just blur it.</p>
+              <GlassButton size="sm" onClick={() => toast.success("From inside the card")}>Fire a toast</GlassButton>
+            </GlassCard>
+          </Draggable>
+        </ShuffleStage>
+      </div>
 
       <div className="features">
         {FEATURES.map(({ Icon, title, body }) => (

@@ -73,6 +73,23 @@ export function Layout() {
 
         <main className="content">
           <Outlet context={{ config, setConfig } satisfies DocsContext} />
+
+          <footer className="site-footer">
+            <p>
+              Built by{" "}
+              <a href="https://seangeng.com" target="_blank" rel="noreferrer">Sean Geng</a>. MIT licensed.
+            </p>
+            <p className="site-footer-links">
+              <a href="https://seangeng.com/writing/building-a-liquid-glass-ui-kit" target="_blank" rel="noreferrer">The writeup</a>
+              <span aria-hidden>·</span>
+              <a href="https://github.com/seangeng/glace" target="_blank" rel="noreferrer">GitHub</a>
+              <span aria-hidden>·</span>
+              <a href="https://www.npmjs.com/package/glaceui" target="_blank" rel="noreferrer">npm</a>
+            </p>
+            <p className="site-footer-credits">
+              On the shoulders of sonner, Aave's glass recipe, Sileo, and web-haptics.
+            </p>
+          </footer>
         </main>
       </div>
 

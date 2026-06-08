@@ -644,3 +644,12 @@ button { font-family: inherit; }
 /* ── Profile cards (Panels) ───────────────────────────────────────────── */
 .profile-card { width: 150px; height: 96px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 16px; }
 .profile-card .demo-card-title { text-transform: capitalize; }
+
+/* ── Site footer ──────────────────────────────────────────────────────── */
+.site-footer { margin-top: 90px; padding-top: 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.88rem; }
+.site-footer p { margin: 0 0 5px; }
+.site-footer a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); }
+.site-footer a:hover { border-color: var(--fg); }
+.site-footer-links { display: flex; gap: 10px; align-items: center; }
+.site-footer-links span { color: var(--faint); }
+.site-footer-credits { color: var(--faint); margin-top: 8px; }

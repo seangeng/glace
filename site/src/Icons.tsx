@@ -59,6 +59,21 @@ export function ArrowUpRight({ className }: P) {
   );
 }
 
+export function ChevronDown({ className }: P) {
+  return (
+    <svg {...base} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+    </svg>
+  );
+}
+export function Check({ className }: P) {
+  return (
+    <svg {...base} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  );
+}
+
 /** Minimal wordmark glyph: a glass pane with a diagonal sheen. */
 export function Mark({ className }: P) {
   return (

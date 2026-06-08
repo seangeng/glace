@@ -1,4 +1,5 @@
 import { toast, type Position, type Theme } from "glaceui";
+import { Select } from "./Select";
 
 export interface ToasterConfig {
   position: Position;
@@ -33,13 +34,12 @@ export function Playground({
     <div className="glass panel playground">
       <div className="pg-controls">
         <Field label="position">
-          <select value={config.position} onChange={(e) => set("position", e.target.value as Position)}>
-            {POSITIONS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+          <Select
+            ariaLabel="position"
+            value={config.position}
+            onValueChange={(v) => set("position", v as Position)}
+            options={POSITIONS}
+          />
         </Field>
         <Field label="theme">
           <div className="seg">

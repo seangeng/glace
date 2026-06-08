@@ -8,6 +8,7 @@
     "deploy": "vite build && wrangler deploy"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.3.0",
     "glaceui": "file:..",
     "prism-react-renderer": "^2.4.1",
     "react": "^18.3.1",

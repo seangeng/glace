@@ -1,7 +1,8 @@
 import { GlassButton, GlassCard, toast } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
-import { DragArea, Draggable } from "../Draggable";
-import { PageHead, PropsTable, Section, Stage } from "../ui";
+import { Draggable } from "../Draggable";
+import { ShuffleStage } from "../ShuffleStage";
+import { PageHead, PropsTable, Section } from "../ui";
 
 const PROFILES = ["convex", "concave", "bevel"] as const;
 
@@ -33,8 +34,8 @@ export function Panels() {
         catches light along the rim, and lifts on hover when <code>interactive</code>.
       </PageHead>
 
-      <Section title="Cards" sub="Dark and light tones — drag them over the grid to watch the glass refract.">
-        <DragArea height={400}>
+      <Section title="Cards" sub="Drag the cards over the gradient — and hit shuffle — to watch the glass refract a real backdrop.">
+        <ShuffleStage height={400}>
           <Draggable x={24} y={48}>
             <GlassCard sheen className="demo-card" style={{ width: 300 }}>
               <div className="demo-card-eyebrow">sheen</div>
@@ -50,18 +51,18 @@ export function Panels() {
               <p>The same surface, tuned for bright backgrounds.</p>
             </GlassCard>
           </Draggable>
-        </DragArea>
+        </ShuffleStage>
       </Section>
 
-      <Section title="Edge profiles" sub="The lens shape changes how the rim bends the backdrop — convex magnifies outward, concave caves in, bevel is a crisp edge. (Aave's height-profile idea, as a prop.)">
-        <Stage className="stage--center">
+      <Section title="Edge profiles" sub="The lens shape changes how the rim bends the backdrop — convex magnifies outward, concave caves in, bevel is a crisp edge. Shuffle the gradient to see it clearly. (Aave's height-profile idea, as a prop.)">
+        <ShuffleStage height={240} center>
           {PROFILES.map((p) => (
-            <GlassCard key={p} profile={p} sheen className="profile-card">
+            <GlassCard key={p} profile={p} className="profile-card">
               <div className="demo-card-eyebrow">profile</div>
               <div className="demo-card-title">{p}</div>
             </GlassCard>
           ))}
-        </Stage>
+        </ShuffleStage>
       </Section>
 
       <Section title="Usage">

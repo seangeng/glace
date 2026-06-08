@@ -2,7 +2,8 @@ import { useState } from "react";
 import { GlassButton, toast, type GlassButtonProps } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { MorphButton } from "../LiquidResize";
-import { PageHead, PropsTable, Section, Stage } from "../ui";
+import { ShuffleStage } from "../ShuffleStage";
+import { PageHead, PropsTable, Section } from "../ui";
 
 /** A demo button that morphs to a new label on each click. */
 function TapButton({ a, b, ...rest }: { a: string; b: string } & GlassButtonProps) {
@@ -50,19 +51,19 @@ export function Buttons() {
         back in 3D and sinks the shadow in. Hold one down to feel it.
       </PageHead>
 
-      <Section title="Sizes" sub="Three sizes, pill-shaped. Click one — the label morphs.">
-        <Stage className="stage--center">
+      <Section title="Sizes" sub="Three sizes, pill-shaped. Click one — the label morphs. Shuffle the backdrop to see the glass refract it.">
+        <ShuffleStage height={170} center>
           <TapButton size="sm" a="Small" b="Tapped" />
           <TapButton size="md" a="Medium" b="Nice — pressed it" />
           <TapButton size="lg" a="Large" b="Done" />
-        </Stage>
+        </ShuffleStage>
       </Section>
 
       <Section title="Tones" sub="Dark by default; light for bright backgrounds. Click to morph.">
-        <Stage className="stage--center">
+        <ShuffleStage height={170} center>
           <TapButton tone="dark" a="Dark" b="Looking good" />
           <TapButton tone="light" a="Light" b="Bright" />
-        </Stage>
+        </ShuffleStage>
       </Section>
 
       <Section title="Morph" sub="With morph, the width springs smoothly when the label changes — size, never scale, so the rim never distorts.">

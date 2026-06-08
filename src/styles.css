@@ -325,22 +325,22 @@
   pointer-events: none;
   background: linear-gradient(
     var(--glace-sheen-angle, -45deg),
-    transparent 0%,
-    rgba(255, 255, 255, 0.42) 40% 50%,
-    transparent 58%
+    transparent 38%,
+    rgba(255, 255, 255, 0.22) 48% 50%,
+    transparent 62%
   );
   background-size: 220% 220%;
   background-position: 0% 50%;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
-  opacity: 0.65;
+  opacity: 0.4;
   transition:
     background-position 0.55s var(--glace-spring),
     --glace-sheen-angle 0.55s var(--glace-spring),
     opacity 0.3s ease;
 }
-.glace-glass--sheen:hover .glace-sheen { background-position: 32% 50%; opacity: 0.95; }
-.glace-glass--sheen:active .glace-sheen { background-position: 56% 16%; --glace-sheen-angle: -14deg; opacity: 1; }
+.glace-glass--sheen:hover .glace-sheen { background-position: 30% 50%; opacity: 0.6; }
+.glace-glass--sheen:active .glace-sheen { background-position: 52% 18%; --glace-sheen-angle: -16deg; opacity: 0.72; }
 
 /* GlassButton (distinct from the toast's internal .glace-btn action buttons) */
 .glace-gbtn {

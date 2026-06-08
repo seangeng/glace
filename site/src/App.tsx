@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Toaster, toast } from "glaceui";
 import { CodeBlock } from "./CodeBlock";
 import { Playground, type ToasterConfig } from "./Playground";
+import { ArrowUpRight, Mark, Phone, Sparkles, Stack, SunMoon, Swatch, Swipe } from "./Icons";
 
 const QUICKSTART = `import { Toaster, toast } from "glaceui";
 import "glaceui/styles.css";
@@ -59,7 +60,7 @@ const HAPTICS = `// off by default — opt in, or tune the patterns
 <Toaster haptics={{ enabled: true, show: 8, action: [6, 10, 6], dismiss: 4 }} />`;
 
 const PROPS: [string, string, string][] = [
-  ["position", "6 corners/edges", "bottom-right"],
+  ["position", "6 corners / edges", "bottom-right"],
   ["theme", "light · dark · system", "system"],
   ["richColors", "boolean", "false"],
   ["expand", "fan open on hover", "true"],
@@ -73,19 +74,23 @@ const PROPS: [string, string, string][] = [
 ];
 
 const FEATURES = [
-  ["🧊", "Real glass", "backdrop blur + saturate, an inset specular highlight, faint grain, and a soft shadow — the Aave glass recipe."],
-  ["🌗", "Light / dark / system", "looks right on both, follows the OS automatically, or pin it."],
-  ["🪄", "Springy stack", "toasts collapse behind each other and fan open on hover, sonner-style."],
-  ["👆", "Swipe to dismiss", "pointer-driven — works on touch and trackpad."],
-  ["📳", "Optional haptics", "a buzz on appear / action / dismiss where the device supports it."],
-  ["🎨", "Themeable", "every color, blur, radius, and gap is a CSS variable. No styling dependency."],
+  { Icon: Sparkles, title: "Real glass", body: "Backdrop blur and saturate, an inset specular highlight, faint grain, and a soft shadow — the Aave glass recipe." },
+  { Icon: SunMoon, title: "Light, dark, system", body: "Looks right on both. Follows the OS automatically, or pin it." },
+  { Icon: Stack, title: "Springy stack", body: "Toasts collapse behind each other and fan open on hover." },
+  { Icon: Swipe, title: "Swipe to dismiss", body: "Pointer-driven — works on touch and trackpad alike." },
+  { Icon: Phone, title: "Optional haptics", body: "A buzz on appear, action, or dismiss where the device supports it." },
+  { Icon: Swatch, title: "Themeable", body: "Every color, blur, radius, and gap is a CSS variable. No styling dependency." },
 ];
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <div className="eyebrow">{children}</div>;
+}
 
 export function App() {
   const [config, setConfig] = useState<ToasterConfig>({
     position: "bottom-right",
-    theme: "system",
-    richColors: true,
+    theme: "dark",
+    richColors: false,
     closeButton: false,
     expand: true,
     haptics: false,
@@ -93,15 +98,12 @@ export function App() {
 
   return (
     <div className="page">
-      <div className="bg" aria-hidden>
-        <span className="blob b1" />
-        <span className="blob b2" />
-        <span className="blob b3" />
-      </div>
+      <div className="bg" aria-hidden />
 
-      <nav className="glass nav">
+      <nav className="nav">
         <a className="brand" href="/">
-          <span className="logo">🧊</span> Glacé
+          <Mark className="brand-mark" />
+          <span>Glacé</span>
         </a>
         <div className="nav-links">
           <a href="#docs">Docs</a>
@@ -111,27 +113,37 @@ export function App() {
       </nav>
 
       <header className="hero">
-        <div className="pill">npm i glaceui</div>
-        <h1>
-          Frosted-glass toasts<br />for React.
-        </h1>
+        <Eyebrow>A React toast library</Eyebrow>
+        <h1>Frosted-glass toasts for React.</h1>
         <p className="lede">
           An opinionated little notification library — real layered glass, springy
-          stacking, swipe-to-dismiss, light/dark out of the box, and optional haptics.
-          Like <a href="https://sonner.emilkowal.ski/" target="_blank" rel="noreferrer">sonner</a>, wearing glass.
+          stacking, swipe-to-dismiss, light and dark out of the box, and optional
+          haptics. Like <a href="https://sonner.emilkowal.ski/" target="_blank" rel="noreferrer">sonner</a>, wearing glass.
         </p>
         <div className="hero-btns">
-          <button className="primary" onClick={() => toast.success("Welcome to Glacé", { description: "Tap and hold a toast to swipe it away." })}>
+          <button
+            className="primary"
+            onClick={() =>
+              toast.success("Welcome to Glacé", {
+                description: "Drag a toast sideways to dismiss it.",
+              })
+            }
+          >
             Show me a toast
           </button>
-          <a className="ghost" href="#docs">Read the docs</a>
+          <a className="ghost" href="#docs">
+            Read the docs <ArrowUpRight className="ghost-icon" />
+          </a>
+        </div>
+        <div className="install">
+          <code>npm i glaceui</code>
         </div>
       </header>
 
       <section className="features">
-        {FEATURES.map(([icon, title, body]) => (
-          <div className="glass feature" key={title}>
-            <div className="feature-icon">{icon}</div>
+        {FEATURES.map(({ Icon, title, body }) => (
+          <div className="feature" key={title}>
+            <Icon className="feature-icon" />
             <h3>{title}</h3>
             <p>{body}</p>
           </div>
@@ -139,28 +151,37 @@ export function App() {
       </section>
 
       <section className="block">
-        <h2>Playground</h2>
-        <p className="sub">Tweak the <code>&lt;Toaster /&gt;</code> and fire some toasts. This page runs the real package.</p>
+        <Eyebrow>Playground</Eyebrow>
+        <h2>Tweak it, fire it.</h2>
+        <p className="sub">
+          Adjust the <code>&lt;Toaster /&gt;</code> and trigger some toasts. This page runs the
+          real published package.
+        </p>
         <Playground config={config} setConfig={setConfig} />
       </section>
 
       <section className="block" id="docs">
-        <h2>Quick start</h2>
-        <p className="sub">Drop one <code>&lt;Toaster /&gt;</code> near your root, call <code>toast()</code> from anywhere.</p>
+        <Eyebrow>Quick start</Eyebrow>
+        <h2>Two imports and a component.</h2>
+        <p className="sub">
+          Drop one <code>&lt;Toaster /&gt;</code> near your root, then call <code>toast()</code> from anywhere.
+        </p>
         <CodeBlock code={QUICKSTART} />
       </section>
 
       <section className="block">
-        <h2>The toast API</h2>
+        <Eyebrow>API</Eyebrow>
+        <h2>The toast function.</h2>
         <CodeBlock code={API} />
       </section>
 
       <section className="block">
-        <h2>&lt;Toaster /&gt; props</h2>
-        <div className="glass panel">
+        <Eyebrow>Reference</Eyebrow>
+        <h2>&lt;Toaster /&gt; props.</h2>
+        <div className="panel">
           <table className="props">
             <thead>
-              <tr><th>prop</th><th>type</th><th>default</th></tr>
+              <tr><th>Prop</th><th>Type</th><th>Default</th></tr>
             </thead>
             <tbody>
               {PROPS.map(([p, t, d]) => (
@@ -176,21 +197,30 @@ export function App() {
       </section>
 
       <section className="block">
-        <h2>Theming</h2>
-        <p className="sub">Driven entirely by CSS variables on <code>[data-glace-toaster]</code> — wire them to your own palette.</p>
+        <Eyebrow>Theming</Eyebrow>
+        <h2>Plain CSS variables.</h2>
+        <p className="sub">
+          Driven entirely by variables on <code>[data-glace-toaster]</code> — wire them to your
+          own palette.
+        </p>
         <CodeBlock code={THEMING} lang="css" />
       </section>
 
       <section className="block">
-        <h2>Haptics</h2>
-        <p className="sub">Off by default. Uses the Vibration API where available (Android Chrome and others) — a progressive enhancement that never throws.</p>
+        <Eyebrow>Haptics</Eyebrow>
+        <h2>Off by default.</h2>
+        <p className="sub">
+          Uses the Vibration API where available — a progressive enhancement that never throws.
+        </p>
         <CodeBlock code={HAPTICS} />
       </section>
 
       <footer className="footer">
         <p>
-          Built by <a href="https://seangeng.com" target="_blank" rel="noreferrer">Sean Geng</a>. MIT.
-          Standing on <a href="https://sonner.emilkowal.ski/" target="_blank" rel="noreferrer">sonner</a>,
+          Built by <a href="https://seangeng.com" target="_blank" rel="noreferrer">Sean Geng</a>. MIT licensed.
+        </p>
+        <p className="credits">
+          On the shoulders of <a href="https://sonner.emilkowal.ski/" target="_blank" rel="noreferrer">sonner</a>,
           {" "}<a href="https://aave.com/design/building-glass-for-the-web" target="_blank" rel="noreferrer">Aave's glass recipe</a>,
           {" "}<a href="https://sileo.aaryan.design/" target="_blank" rel="noreferrer">Sileo</a>, and
           {" "}<a href="https://github.com/lochie/web-haptics" target="_blank" rel="noreferrer">web-haptics</a>.

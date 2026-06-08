@@ -6,6 +6,8 @@
     "not_found_handling": "single-page-application"
   },
   "routes": [
+    { "pattern": "glaceui.com", "custom_domain": true },
+    { "pattern": "www.glaceui.com", "custom_domain": true },
     { "pattern": "glacekit.com", "custom_domain": true },
     { "pattern": "www.glacekit.com", "custom_domain": true }
   ]

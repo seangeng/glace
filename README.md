@@ -89,28 +89,46 @@ toast.dismiss(id); // or toast.dismiss() to clear all
 | `haptics` | `boolean \| HapticsOptions` | `false` | opt-in vibration feedback |
 | `toastOptions` | `{ duration, className, style, closeButton }` | — | defaults applied to every toast |
 
-## Glass primitives
+## Buttons — `<GlassButton>`
 
-The same refraction that powers the toasts is exposed directly — use it anywhere.
+A frosted button on the glass surface, with a springy liquid press. Docs: [glaceui.com/buttons](https://glaceui.com/buttons).
 
 ```tsx
-import { Glass, GlassCard, GlassButton } from "glaceui";
-import "glaceui/styles.css";
+import { GlassButton } from "glaceui";
 
-// a frosted button — refracts the backdrop at its edges
-<GlassButton size="md" onClick={save}>Save</GlassButton>
+<GlassButton onClick={save}>Save</GlassButton>
+<GlassButton size="lg" tone="light">Large light</GlassButton>
+<GlassButton morph>{open ? "Collapse" : "Expand"}</GlassButton>  // width springs on change
+```
 
-// a padded glass container
+Props: `tone` (`light`/`dark`), `size` (`sm`/`md`/`lg`), `refract`, `morph`, plus all `<button>` props.
+
+## Panels — `<GlassCard>`
+
+A padded glass container — drop anything inside. Docs: [glaceui.com/panels](https://glaceui.com/panels).
+
+```tsx
+import { GlassCard, GlassButton } from "glaceui";
+
 <GlassCard tone="dark" interactive>
   <h3>Pricing</h3>
   <p>Wrap anything in real glass.</p>
+  <GlassButton size="sm">Upgrade</GlassButton>
 </GlassCard>
-
-// the raw surface — render any element via `as`
-<Glass as="section" tone="light" radius={24}>…</Glass>
 ```
 
-`<Glass>` props: `as` (default `div`), `tone` (`light`/`dark`), `radius` (px), `blur` (refraction-path blur, default `3`), `fallbackBlur` (default `14`), `refract` (default `true`), `interactive` (lift on hover). `<GlassButton>` adds `size` (`sm`/`md`/`lg`). One shared SVG filter is mounted lazily and reused by every glass surface — including the toasts.
+## Primitives — `<Glass>`
+
+The raw surface every component is built on. Render any element via `as`. Docs: [glaceui.com/primitives](https://glaceui.com/primitives).
+
+```tsx
+import { Glass, useGlassFilter } from "glaceui";
+
+<Glass as="section" tone="light" radius={24}>…</Glass>
+<Glass as="aside" morph>…liquid-resizes without distortion…</Glass>
+```
+
+Props: `as` (default `div`), `tone`, `radius` (px), `blur` (refraction-path, default `3`), `fallbackBlur` (default `14`), `refract`, `interactive`, `morph`. One shared SVG displacement filter is mounted lazily and reused by every glass surface — including the toasts — so the whole kit refracts consistently and cheaply.
 
 ## Theming
 

@@ -297,6 +297,18 @@
 .glace-glass--interactive:hover { transform: translateY(-3px); }
 .glace-glass--interactive:active { transform: translateY(-1px) scale(0.992); transition-duration: 0.18s; }
 
+/* liquid size morph — animate width/height through the spring (incl. to `auto`
+   on supporting browsers via interpolate-size). Sileo morphs size, never scale,
+   so the rim and refraction never distort. */
+.glace-glass--morph {
+  interpolate-size: allow-keywords;
+  transition:
+    width 0.55s var(--glace-spring),
+    height 0.55s var(--glace-spring),
+    transform 0.5s var(--glace-spring),
+    filter 0.15s ease;
+}
+
 /* GlassCard */
 .glace-card { padding: 20px; }
 

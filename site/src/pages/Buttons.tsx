@@ -1,0 +1,59 @@
+import { GlassButton, toast } from "glaceui";
+import { CodeBlock } from "../CodeBlock";
+import { MorphButton } from "../LiquidResize";
+import { PageHead, PropsTable, Section, Stage } from "../ui";
+
+const USAGE = `import { GlassButton } from "glaceui";
+import "glaceui/styles.css";
+
+<GlassButton onClick={() => toast("Nice")}>Glass button</GlassButton>
+<GlassButton size="lg" tone="light">Large light</GlassButton>
+
+// morph: width springs smoothly when the label changes
+<GlassButton morph onClick={...}>{open ? "Collapse" : "Expand"}</GlassButton>`;
+
+const PROPS: [string, string, string][] = [
+  ["tone", "light · dark", "dark"],
+  ["size", "sm · md · lg", "md"],
+  ["refract", "boolean", "true"],
+  ["morph", "spring width on label change", "false"],
+  ["…rest", "all <button> props", "—"],
+];
+
+export function Buttons() {
+  return (
+    <div className="prose-page">
+      <PageHead eyebrow="Component" title="Buttons">
+        A frosted-glass button built on the <code>&lt;Glass&gt;</code> surface — a specular rim,
+        a springy liquid press, and real edge refraction.
+      </PageHead>
+
+      <Section title="Sizes" sub="Three sizes, pill-shaped.">
+        <Stage className="stage--center">
+          <GlassButton size="sm" onClick={() => toast("Small")}>Small</GlassButton>
+          <GlassButton size="md" onClick={() => toast("Medium")}>Medium</GlassButton>
+          <GlassButton size="lg" onClick={() => toast("Large")}>Large</GlassButton>
+        </Stage>
+      </Section>
+
+      <Section title="Tones" sub="Dark by default; light for bright backgrounds.">
+        <Stage className="stage--center">
+          <GlassButton tone="dark" onClick={() => toast("Dark glass")}>Dark</GlassButton>
+          <GlassButton tone="light" onClick={() => toast("Light glass")}>Light</GlassButton>
+        </Stage>
+      </Section>
+
+      <Section title="Morph" sub="With morph, the width springs smoothly when the label changes — size, never scale, so the rim never distorts.">
+        <MorphButton />
+      </Section>
+
+      <Section title="Usage">
+        <CodeBlock code={USAGE} />
+      </Section>
+
+      <Section title="<GlassButton /> props">
+        <PropsTable rows={PROPS} />
+      </Section>
+    </div>
+  );
+}

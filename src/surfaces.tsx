@@ -21,6 +21,8 @@ export interface GlassProps extends React.HTMLAttributes<HTMLElement> {
   refract?: boolean;
   /** Lift slightly on hover. */
   interactive?: boolean;
+  /** Smoothly morph width/height (spring) when the size changes. */
+  morph?: boolean;
 }
 
 /**
@@ -37,6 +39,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
     fallbackBlur = 14,
     refract = true,
     interactive = false,
+    morph = false,
     className,
     style,
     children,
@@ -52,7 +55,12 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
   return (
     <Tag
       ref={ref}
-      className={cx("glace-glass", interactive && "glace-glass--interactive", className)}
+      className={cx(
+        "glace-glass",
+        interactive && "glace-glass--interactive",
+        morph && "glace-glass--morph",
+        className,
+      )}
       data-tone={tone}
       data-refract={on ? "" : undefined}
       style={{
@@ -82,11 +90,13 @@ export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
   tone?: GlassTone;
   size?: "sm" | "md" | "lg";
   refract?: boolean;
+  /** Smoothly morph width (spring) when the label changes. */
+  morph?: boolean;
 }
 
 /** A frosted-glass button with a specular rim and a springy press. */
 export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(function GlassButton(
-  { tone = "dark", size = "md", refract = true, type = "button", className, style, children, ...rest },
+  { tone = "dark", size = "md", refract = true, morph = false, type = "button", className, style, children, ...rest },
   ref,
 ) {
   const filterId = useGlassFilter();
@@ -97,7 +107,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
     <button
       ref={ref}
       type={type}
-      className={cx("glace-glass", "glace-gbtn", `glace-gbtn--${size}`, className)}
+      className={cx("glace-glass", "glace-gbtn", `glace-gbtn--${size}`, morph && "glace-glass--morph", className)}
       data-tone={tone}
       data-refract={on ? "" : undefined}
       style={{ backdropFilter: backdrop, WebkitBackdropFilter: backdrop, ...style }}

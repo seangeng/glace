@@ -157,7 +157,7 @@ export function Toaster({
           width: "var(--glace-width, 356px)",
           maxWidth: "calc(100vw - 32px)",
           height: stackHeight,
-          transition: "height 0.5s cubic-bezier(0.34, 1.4, 0.6, 1)",
+          transition: "height 0.5s var(--glace-spring)",
         }}
       >
         {toasts.map((t, i) => (

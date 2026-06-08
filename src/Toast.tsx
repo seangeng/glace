@@ -29,9 +29,10 @@ interface ToastProps {
 const SWIPE_THRESHOLD = 0.4; // fraction of width
 const EXIT_MS = 280;
 
-// Sileo-style spring: soft overshoot on enter/settle, clean ease-out on exit.
-const SPRING = "cubic-bezier(0.34, 1.5, 0.5, 1)";
-const EASE_OUT = "cubic-bezier(0.4, 0, 0.2, 1)";
+// Sileo-style spring: a real linear() spring on enter/settle (gentle overshoot),
+// clean ease-out on exit. Tokens live in styles.css so the whole kit shares one feel.
+const SPRING = "var(--glace-spring)";
+const EASE_OUT = "var(--glace-spring-out)";
 
 export function Toast({
   toast,

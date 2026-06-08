@@ -45,7 +45,7 @@ button { font-family: inherit; }
   pointer-events: none;
   background-color: var(--bg);
   /* subtle crosshair grid — gives the glass something to refract */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M15 11v8M11 15h8' stroke='%23ffffff' stroke-opacity='0.15' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M15 11v8M11 15h8' stroke='%23ffffff' stroke-opacity='0.12' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: 30px 30px;
 }
 .bg::before {
@@ -65,9 +65,9 @@ button { font-family: inherit; }
 /* ── glass surfaces ───────────────────────────────────────────────────── */
 /* .nav glass now comes from the library <Glass> component (real refraction) */
 .panel {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
+  background: rgba(13, 13, 15, 0.62);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid var(--glass-border);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
@@ -181,16 +181,18 @@ button { font-family: inherit; }
   gap: 12px;
 }
 .feature {
-  background: rgba(255, 255, 255, 0.018);
+  background: rgba(14, 14, 16, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 22px 20px 24px;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.5s var(--glace-spring, cubic-bezier(0.34, 1.4, 0.6, 1));
 }
 .feature:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(22, 22, 25, 0.62);
   border-color: rgba(255, 255, 255, 0.17);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 .feature-icon-wrap {
   display: inline-flex;
@@ -322,14 +324,22 @@ button { font-family: inherit; }
 .pg-fire button:active { transform: translateY(1px); }
 
 /* ── code blocks ──────────────────────────────────────────────────────── */
-.code { border-radius: 13px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.022); overflow: hidden; }
+/* frosted dark backing so the page grid doesn't bleed through and hurt contrast */
+.code {
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: rgba(11, 11, 13, 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  backdrop-filter: blur(18px) saturate(120%);
+  overflow: hidden;
+}
 .code-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px 8px 14px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.014);
+  background: rgba(255, 255, 255, 0.02);
 }
 .code-lang { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--faint); }
 .code-copy {

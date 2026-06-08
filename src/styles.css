@@ -1,5 +1,18 @@
 /* Glacé — frosted-glass toasts. One stylesheet, themeable via CSS vars. */
 
+/* ── Motion: a real spring easing (linear() approximation of stiffness 280 /
+   damping 26, à la Sileo) — gentle overshoot then settle. Used for every
+   transform across the kit so the whole thing moves like one liquid system. */
+:root {
+  --glace-spring: linear(
+    0, 0.0036, 0.0146, 0.0325, 0.0569, 0.0872 7.7%, 0.1747, 0.2767, 0.3852 21.7%,
+    0.4937, 0.5978, 0.6951, 0.7842 38.5%, 0.8643 43%, 0.9357, 0.9981 53.6%,
+    1.0156, 1.0286, 1.0374, 1.0422 64.6%, 1.0436, 1.0418, 1.0374, 1.0309 78%,
+    1.0153, 1.0019 88%, 0.9956, 0.9925 96%, 0.9968, 1
+  );
+  --glace-spring-out: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
 [data-glace-toaster] {
   --glace-width: 356px;
   --glace-radius: 16px;
@@ -279,9 +292,10 @@
 }
 .glace-glass--interactive {
   cursor: pointer;
-  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.6, 1), box-shadow 0.18s ease;
+  transition: transform 0.5s var(--glace-spring), box-shadow 0.25s ease;
 }
-.glace-glass--interactive:hover { transform: translateY(-2px); }
+.glace-glass--interactive:hover { transform: translateY(-3px); }
+.glace-glass--interactive:active { transform: translateY(-1px) scale(0.992); transition-duration: 0.18s; }
 
 /* GlassCard */
 .glace-card { padding: 20px; }
@@ -298,10 +312,10 @@
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
-  transition: transform 0.13s cubic-bezier(0.34, 1.5, 0.5, 1), filter 0.15s ease;
+  transition: transform 0.5s var(--glace-spring), filter 0.15s ease;
 }
-.glace-gbtn:hover { filter: brightness(1.08); }
-.glace-gbtn:active { transform: scale(0.97); }
+.glace-gbtn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.glace-gbtn:active { transform: scale(0.95); transition-duration: 0.13s; }
 .glace-gbtn:focus-visible { outline: 2px solid var(--g-highlight); outline-offset: 2px; }
 .glace-gbtn-label { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; }
 .glace-gbtn--sm { padding: 7px 15px; font-size: 13px; }

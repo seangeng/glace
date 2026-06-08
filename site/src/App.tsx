@@ -75,7 +75,7 @@ const PROPS: [string, string, string][] = [
 ];
 
 const FEATURES = [
-  { Icon: Sparkles, title: "Real glass", body: "Backdrop blur and saturate, an inset specular highlight, faint grain, and a soft shadow — the Aave glass recipe." },
+  { Icon: Sparkles, title: "Real glass", body: "Edges that refract — an SVG displacement map bends the backdrop at the rim, with a specular highlight and only a little blur. Not just frosted." },
   { Icon: SunMoon, title: "Light, dark, system", body: "Looks right on both. Follows the OS automatically, or pin it." },
   { Icon: Stack, title: "Springy stack", body: "Toasts collapse behind each other and fan open on hover." },
   { Icon: Swipe, title: "Swipe to dismiss", body: "Pointer-driven — works on touch and trackpad alike." },
@@ -144,7 +144,9 @@ export function App() {
       <section className="features">
         {FEATURES.map(({ Icon, title, body }) => (
           <div className="feature" key={title}>
-            <Icon className="feature-icon" />
+            <span className="feature-icon-wrap">
+              <Icon className="feature-icon" />
+            </span>
             <h3>{title}</h3>
             <p>{body}</p>
           </div>

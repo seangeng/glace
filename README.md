@@ -2,6 +2,8 @@
 
 **Beautiful frosted-glass toasts for React.** An opinionated little notification library — real layered glass, springy stacking, swipe-to-dismiss, light/dark out of the box, and optional haptics. Think [sonner](https://sonner.emilkowal.ski/), wearing glass.
 
+**[glacekit.com](https://glacekit.com)** — live demo, playground, and docs.
+
 ```bash
 npm i glaceui
 ```

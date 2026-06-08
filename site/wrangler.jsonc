@@ -1,0 +1,12 @@
+{
+  "name": "glacekit",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "glacekit.com", "custom_domain": true },
+    { "pattern": "www.glacekit.com", "custom_domain": true }
+  ]
+}

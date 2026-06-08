@@ -64,7 +64,8 @@ button { font-family: inherit; }
 }
 
 /* ── glass surfaces ───────────────────────────────────────────────────── */
-/* .nav glass now comes from the library <Glass> component (real refraction) */
+/* .nav uses the library <Glass> component for real refraction; .panel is the
+   plain frosted-blur fallback surface. */
 .panel {
   background: rgba(13, 13, 15, 0.62);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
@@ -608,30 +609,7 @@ button { font-family: inherit; }
 }
 .lr-presets { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
 
-/* ── Draggable demo area (borderless) ─────────────────────────────────── */
-.drag-area {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  background:
-    radial-gradient(60% 80% at 50% 0%, rgba(255, 255, 255, 0.045), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M12 9v6M9 12h6' stroke='%23ffffff' stroke-opacity='0.2' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E"),
-    #08080a;
-  background-size: auto, 24px 24px, auto;
-  touch-action: none;
-}
-.drag-area-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 14px;
-  transform: translateX(-50%);
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: rgba(255, 255, 255, 0.28);
-  pointer-events: none;
-}
+/* ── Draggable cards ──────────────────────────────────────────────────── */
 .draggable { cursor: grab; }
 .draggable[data-dragging] { cursor: grabbing; }
 .draggable .demo-card { user-select: none; -webkit-user-select: none; }

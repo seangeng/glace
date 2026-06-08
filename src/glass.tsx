@@ -153,21 +153,28 @@ function getFilter(
   return id;
 }
 
-export interface RefractionOptions {
+/** Visual tuning shared by every glass surface (Glass, GlassCard, GlassButton). */
+export interface GlassTuning {
+  /** Corner radius in px. */
   radius?: number;
+  /** Chromatic-aberration split in px (default 1). */
+  aberration?: number;
+  /** Refracting rim thickness as a fraction of the min dimension, 0–0.5 (default 0.16). */
+  bezel?: number;
+  /** Edge profile: convex lens · concave · bevel (default convex). */
+  profile?: GlassProfile;
+  /** Backdrop saturation %, default 180. */
+  saturation?: number;
+  /** Blur on the refraction path (kept low — the lens does the work). */
+  blur?: number;
+  /** Blur used when refraction isn't supported (Safari/Firefox). */
+  fallbackBlur?: number;
+}
+
+export interface RefractionOptions extends GlassTuning {
   refract?: boolean;
   /** Edge displacement in px. Omit to auto-scale to the element. */
   scale?: number;
-  /** Chromatic-aberration split in px. */
-  aberration?: number;
-  /** Refracting rim thickness as a fraction of the min dimension (0–0.5). */
-  bezel?: number;
-  /** Edge profile: convex lens · concave · bevel. Default convex. */
-  profile?: GlassProfile;
-  /** backdrop saturation %, default 180. */
-  saturation?: number;
-  blur?: number;
-  fallbackBlur?: number;
   brightness?: number;
 }
 

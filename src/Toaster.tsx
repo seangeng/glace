@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Position, ToastData, ToasterProps } from "./types";
+import type { ToastData, ToasterProps } from "./types";
 import { store } from "./state";
 import { Toast } from "./Toast";
 import { resolveHaptics } from "./haptics";
@@ -74,10 +74,7 @@ export function Toaster({
     setHeights((prev) => (prev[String(id)] === h ? prev : { ...prev, [String(id)]: h }));
   }, []);
 
-  const hapticsResolved = useMemo(() => {
-    const r = resolveHaptics(haptics);
-    return r ? { show: r.show, action: r.action, dismiss: r.dismiss } : null;
-  }, [haptics]);
+  const hapticsResolved = useMemo(() => resolveHaptics(haptics), [haptics]);
 
   const expanded = (expand && hovered) || focused;
   const paused = hovered || focused || docHidden;
@@ -127,7 +124,7 @@ export function Toaster({
           ...style,
           position: "fixed",
           zIndex: 99999,
-          [isBottom ? "bottom" : "top"]: offset,
+          ...(isBottom ? { bottom: offset } : { top: offset }),
           ...(isCenter
             ? { left: "50%", transform: "translateX(-50%)" }
             : isRight
@@ -135,7 +132,7 @@ export function Toaster({
               : { left: offset }),
           "--glace-blur": `${blur}px`,
           "--glace-gap": `${gap}px`,
-        } as unknown as React.CSSProperties
+        } as React.CSSProperties & Record<`--${string}`, string>
       }
     >
       <ol
@@ -145,7 +142,8 @@ export function Toaster({
         onMouseLeave={() => setHovered(false)}
         onFocusCapture={() => setFocused(true)}
         onBlurCapture={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) setFocused(false);
+          const rt = e.relatedTarget;
+          if (!(rt instanceof Node) || !e.currentTarget.contains(rt)) setFocused(false);
         }}
         style={{
           listStyle: "none",
@@ -163,7 +161,7 @@ export function Toaster({
             key={t.id}
             toast={t}
             layout={layouts[i]}
-            position={position as Position}
+            position={position}
             expanded={expanded}
             paused={paused}
             defaultDuration={toastOptions?.duration ?? duration}

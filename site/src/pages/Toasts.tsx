@@ -1,6 +1,6 @@
 import { CodeBlock } from "../CodeBlock";
 import { Playground } from "../Playground";
-import { PageHead, PropsTable, Section } from "../ui";
+import { PageHead, PropsTable, Section , PropRow} from "../ui";
 import { useDocs } from "../Layout";
 
 const QUICKSTART = `import { Toaster, toast } from "glaceui";
@@ -56,7 +56,7 @@ const HAPTICS = `// off by default — opt in, or tune the patterns
 <Toaster haptics />
 <Toaster haptics={{ enabled: true, show: 8, action: [6, 10, 6], dismiss: 4 }} />`;
 
-const PROPS: [string, string, string][] = [
+const PROPS: PropRow[] = [
   ["position", "6 corners / edges", "bottom-right"],
   ["theme", "light · dark · system", "system"],
   ["richColors", "boolean", "false"],

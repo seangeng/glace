@@ -2,7 +2,7 @@ import { GlassButton, GlassCard, toast } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { Draggable } from "../Draggable";
 import { ShuffleStage } from "../ShuffleStage";
-import { PageHead, PropsTable, Section } from "../ui";
+import { PageHead, PropsTable, Section , PropRow} from "../ui";
 
 const PROFILES = ["convex", "concave", "bevel"] as const;
 
@@ -15,7 +15,7 @@ import "glaceui/styles.css";
   <GlassButton size="sm">Upgrade</GlassButton>
 </GlassCard>`;
 
-const PROPS: [string, string, string][] = [
+const PROPS: PropRow[] = [
   ["tone", "light · dark", "dark"],
   ["radius", "corner radius (px)", "18"],
   ["interactive", "lift on hover", "false"],

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Position, ToastData } from "./types";
 import { store } from "./state";
 import { TypeIcon, CloseIcon } from "./icons";
-import { vibrate } from "./haptics";
+import { vibrate, type ResolvedHaptics } from "./haptics";
 import { useGlassRefraction } from "./glass";
 
 interface Layout {
@@ -23,7 +23,7 @@ interface ToastProps {
   defaultDuration: number;
   closeButtonDefault: boolean;
   richColors: boolean;
-  haptics: { show: number | number[]; action: number | number[]; dismiss: number | number[] } | null;
+  haptics: ResolvedHaptics | null;
   refract?: boolean | number;
   aberration?: number;
   onHeight: (id: ToastData["id"], h: number) => void;
@@ -113,10 +113,10 @@ export function Toast({
   }, [paused, duration, removing, toast.title, toast.type]);
 
   // pointer swipe-to-dismiss
-  function onPointerDown(e: React.PointerEvent) {
+  function onPointerDown(e: React.PointerEvent<HTMLLIElement>) {
     if (e.button !== 0) return;
     drag.current = { startX: e.clientX, w: ref.current?.offsetWidth ?? 320 };
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    e.currentTarget.setPointerCapture(e.pointerId);
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!drag.current) return;

@@ -42,12 +42,10 @@ export function Section({
   );
 }
 
-/** A demo surface with the crosshair grid behind, so glass refraction shows. */
-export function Stage({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={`stage${className ? " " + className : ""}`}>{children}</div>;
-}
+/** One row of a props table: [name, type, default]. */
+export type PropRow = [prop: string, type: string, def: string];
 
-export function PropsTable({ rows }: { rows: [string, string, string][] }) {
+export function PropsTable({ rows }: { rows: PropRow[] }) {
   return (
     <div className="panel">
       <table className="props">

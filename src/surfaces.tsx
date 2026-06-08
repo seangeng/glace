@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
-import { useGlassRefraction, type GlassProfile } from "./glass";
+import { useGlassRefraction, type GlassTuning } from "./glass";
 
 function cx(...parts: (string | false | undefined | null)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -51,36 +51,22 @@ function useMorphWidth(ref: { current: HTMLElement | null }, enabled: boolean) {
   });
 }
 
-function assignRef<T>(ref: React.ForwardedRef<T>, node: T) {
+function assignRef<T>(ref: React.ForwardedRef<T>, node: T | null) {
   if (typeof ref === "function") ref(node);
-  else if (ref) (ref as React.MutableRefObject<T>).current = node;
+  else if (ref) ref.current = node;
 }
 
 export type GlassTone = "light" | "dark";
 
-export interface GlassProps extends React.HTMLAttributes<HTMLElement> {
+export interface GlassProps extends React.HTMLAttributes<HTMLElement>, GlassTuning {
   /** Element/component to render. Defaults to `div`. */
   as?: React.ElementType;
   tone?: GlassTone;
-  /** Corner radius in px. */
-  radius?: number;
-  /** Blur on the refraction path (keep low — the lens does the work). */
-  blur?: number;
-  /** Blur used when refraction isn't supported (Safari/Firefox). */
-  fallbackBlur?: number;
   /** `false` off · `true` auto · a number sets the edge displacement in px. */
   refract?: boolean | number;
-  /** Chromatic-aberration split in px (default 1). */
-  aberration?: number;
-  /** Refracting rim thickness as a fraction of the min dimension, 0–0.5 (default 0.16). */
-  bezel?: number;
-  /** Edge shape of the lens: `convex` · `concave` · `bevel` (default convex). */
-  profile?: GlassProfile;
-  /** Backdrop saturation %, default 180. */
-  saturation?: number;
   /** Lift slightly on hover. */
   interactive?: boolean;
-  /** Smoothly morph width/height (spring) when the size changes. */
+  /** Smoothly morph width (spring) when the size changes. */
   morph?: boolean;
   /** A specular sheen that sweeps across on hover/press. */
   sheen?: boolean;
@@ -125,13 +111,13 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
     blur,
     fallbackBlur,
   });
-  const Tag = (as ?? "div") as React.ElementType;
+  const Tag: React.ElementType = as ?? "div";
 
   return (
     <Tag
       ref={(node: HTMLElement | null) => {
         inner.current = node;
-        assignRef(ref, node as HTMLElement);
+        assignRef(ref, node);
       }}
       className={cx(
         "glace-glass",
@@ -166,19 +152,13 @@ export const GlassCard = forwardRef<HTMLElement, GlassCardProps>(function GlassC
   return <Glass ref={ref} radius={radius} className={cx("glace-card", className)} {...rest} />;
 });
 
-export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface GlassButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    Pick<GlassTuning, "aberration" | "bezel" | "profile" | "saturation"> {
   tone?: GlassTone;
   size?: "sm" | "md" | "lg";
   /** `false` off · `true` auto · a number sets the edge displacement in px. */
   refract?: boolean | number;
-  /** Chromatic-aberration split in px (default 1). */
-  aberration?: number;
-  /** Refracting rim thickness as a fraction of the min dimension (default 0.16). */
-  bezel?: number;
-  /** Edge shape of the lens: `convex` · `concave` · `bevel` (default convex). */
-  profile?: GlassProfile;
-  /** Backdrop saturation %, default 180. */
-  saturation?: number;
   /** Smoothly morph width (spring) when the label changes. */
   morph?: boolean;
 }
@@ -209,14 +189,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
         assignRef(ref, node);
       }}
       type={type}
-      className={cx(
-        "glace-glass",
-        "glace-gbtn",
-        `glace-gbtn--${size}`,
-        "glace-glass--sheen",
-        morph && "glace-glass--morph",
-        className,
-      )}
+      className={cx("glace-glass", "glace-gbtn", `glace-gbtn--${size}`, "glace-glass--sheen", className)}
       data-tone={tone}
       data-refract={refracting ? "" : undefined}
       style={{ backdropFilter: backdrop, WebkitBackdropFilter: backdrop, ...style }}

@@ -6,7 +6,10 @@ import type { HapticsOptions } from "./types";
  * so this is a progressive enhancement — never required, never throws.
  */
 
-export const DEFAULT_HAPTICS: Required<Omit<HapticsOptions, "enabled">> = {
+/** Haptic patterns with every field resolved (no optional `enabled`). */
+export type ResolvedHaptics = Required<Omit<HapticsOptions, "enabled">>;
+
+export const DEFAULT_HAPTICS: ResolvedHaptics = {
   show: 8,
   action: [6, 10, 6],
   dismiss: 4,
@@ -27,9 +30,10 @@ export function vibrate(pattern: number | number[]): void {
 
 export function resolveHaptics(
   config: boolean | HapticsOptions | undefined,
-): Required<HapticsOptions> | null {
+): ResolvedHaptics | null {
   if (!config) return null;
-  if (config === true) return { enabled: true, ...DEFAULT_HAPTICS };
+  if (config === true) return { ...DEFAULT_HAPTICS };
   if (!config.enabled) return null;
-  return { enabled: true, ...DEFAULT_HAPTICS, ...config };
+  const { enabled, ...patterns } = config;
+  return { ...DEFAULT_HAPTICS, ...patterns };
 }

@@ -2,16 +2,6 @@ import { useRef, useState } from "react";
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
-/** A borderless bounded area (grid backdrop) you can drag glass around in. */
-export function DragArea({ children, height = 400 }: { children: React.ReactNode; height?: number }) {
-  return (
-    <div className="drag-area" style={{ height }}>
-      <span className="drag-area-hint">drag the cards around</span>
-      {children}
-    </div>
-  );
-}
-
 /** Wraps a child so it can be dragged within its parent's bounds. */
 export function Draggable({
   x = 0,

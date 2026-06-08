@@ -38,10 +38,8 @@ class ToastStore {
         i === existingIndex ? { ...t, ...partial } : t,
       );
     } else {
-      this.toasts = [
-        { createdAt: Date.now(), ...partial } as ToastData,
-        ...this.toasts,
-      ];
+      const toast: ToastData = { ...partial, createdAt: partial.createdAt ?? Date.now() };
+      this.toasts = [toast, ...this.toasts];
     }
     this.emit();
     return partial.id;

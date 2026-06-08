@@ -3,7 +3,7 @@ import { GlassButton, toast, type GlassButtonProps } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { MorphButton } from "../LiquidResize";
 import { ShuffleStage } from "../ShuffleStage";
-import { PageHead, PropsTable, Section } from "../ui";
+import { PageHead, PropsTable, Section , PropRow} from "../ui";
 
 /** A demo button that morphs to a new label on each click. */
 function TapButton({ a, b, ...rest }: { a: string; b: string } & GlassButtonProps) {
@@ -31,7 +31,7 @@ import "glaceui/styles.css";
 // morph: width springs smoothly when the label changes
 <GlassButton morph onClick={...}>{open ? "Collapse" : "Expand"}</GlassButton>`;
 
-const PROPS: [string, string, string][] = [
+const PROPS: PropRow[] = [
   ["tone", "light · dark", "dark"],
   ["size", "sm · md · lg", "md"],
   ["refract", "false · true · number (px)", "true"],

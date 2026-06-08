@@ -1,7 +1,7 @@
 import { CodeBlock } from "../CodeBlock";
 import { GlassLab } from "../GlassLab";
 import { LiquidResize } from "../LiquidResize";
-import { PageHead, PropsTable, Section } from "../ui";
+import { PageHead, PropsTable, Section , PropRow} from "../ui";
 
 const USAGE = `import { Glass } from "glaceui";
 import "glaceui/styles.css";
@@ -20,7 +20,7 @@ import { useGlassFilter } from "glaceui";
 
 const filterId = useGlassFilter(); // string | null (null = no refraction)`;
 
-const PROPS: [string, string, string][] = [
+const PROPS: PropRow[] = [
   ["as", "element type", "div"],
   ["tone", "light · dark", "dark"],
   ["radius", "corner radius (px)", "16"],

@@ -1,0 +1,62 @@
+{
+  "name": "glaceui",
+  "version": "0.1.0",
+  "description": "Glacé — beautiful frosted-glass toasts for React. An opinionated, themeable child of sonner with real glass, springy motion, and optional haptics.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Sean Geng (https://seangeng.com)",
+  "homepage": "https://github.com/seangeng/glace#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seangeng/glace.git"
+  },
+  "bugs": "https://github.com/seangeng/glace/issues",
+  "keywords": [
+    "react",
+    "toast",
+    "toaster",
+    "notification",
+    "glass",
+    "glassmorphism",
+    "sonner",
+    "haptics",
+    "dark-mode",
+    "tailwind",
+    "shadcn"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

@@ -3,7 +3,7 @@ import { Toaster, toast } from "glaceui";
 import { CodeBlock } from "./CodeBlock";
 import { Playground, type ToasterConfig } from "./Playground";
 import { GlassLab } from "./GlassLab";
-import { ArrowUpRight, Mark, Phone, Sparkles, Stack, SunMoon, Swatch, Swipe } from "./Icons";
+import { ArrowUpRight, Check, Clipboard, Mark, Phone, Sparkles, Stack, SunMoon, Swatch, Swipe } from "./Icons";
 
 const QUICKSTART = `import { Toaster, toast } from "glaceui";
 import "glaceui/styles.css";
@@ -87,6 +87,24 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <div className="eyebrow">{children}</div>;
 }
 
+function InstallChip() {
+  const [copied, setCopied] = useState(false);
+  const cmd = "npm i glaceui";
+  const copy = () => {
+    navigator.clipboard?.writeText(cmd).then(() => {
+      setCopied(true);
+      toast.success("Copied to clipboard", { description: cmd });
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+  return (
+    <button className="install" onClick={copy} aria-label="Copy install command">
+      <code>{cmd}</code>
+      <span className="install-copy">{copied ? <Check className="install-icon" /> : <Clipboard className="install-icon" />}</span>
+    </button>
+  );
+}
+
 export function App() {
   const [config, setConfig] = useState<ToasterConfig>({
     position: "bottom-right",
@@ -136,9 +154,7 @@ export function App() {
             Read the docs <ArrowUpRight className="ghost-icon" />
           </a>
         </div>
-        <div className="install">
-          <code>npm i glaceui</code>
-        </div>
+        <InstallChip />
       </header>
 
       <section className="features">

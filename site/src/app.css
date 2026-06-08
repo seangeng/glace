@@ -44,20 +44,22 @@ button { font-family: inherit; }
   z-index: -1;
   pointer-events: none;
   background-color: var(--bg);
-  background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.055) 1px, transparent 1.3px);
-  background-size: 26px 26px;
+  /* subtle crosshair grid — gives the glass something to refract */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M15 11v8M11 15h8' stroke='%23ffffff' stroke-opacity='0.15' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 30px 30px;
 }
 .bg::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(70% 45% at 50% -8%, rgba(255, 255, 255, 0.11), transparent 70%);
+  background: radial-gradient(70% 45% at 50% -8%, rgba(255, 255, 255, 0.1), transparent 70%);
 }
 .bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(75% 65% at 50% 25%, transparent 40%, var(--bg) 92%);
+  /* gentle vignette only — keep the grid visible into the corners */
+  background: radial-gradient(95% 85% at 50% 35%, transparent 62%, rgba(10, 10, 11, 0.72) 100%);
 }
 
 /* ── glass surfaces ───────────────────────────────────────────────────── */
@@ -149,15 +151,25 @@ button { font-family: inherit; }
 }
 .hero-btns .ghost:hover { background: rgba(255, 255, 255, 0.05); }
 .ghost-icon { width: 15px; height: 15px; opacity: 0.7; }
-.install { margin-top: 26px; }
-.install code {
-  font-size: 0.9rem;
-  padding: 9px 14px;
-  border-radius: 9px;
+.install {
+  margin-top: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px 9px 14px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
-  color: var(--muted);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
+.install:hover { border-color: rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.06); }
+.install:active { transform: translateY(0.5px); }
+.install code { font-size: 0.9rem; background: none; border: none; padding: 0; color: var(--fg); }
 .install code::before { content: "$ "; color: var(--faint); }
+.install-copy { display: inline-flex; color: var(--faint); transition: color 0.15s ease; }
+.install:hover .install-copy { color: var(--muted); }
+.install-icon { width: 15px; height: 15px; }
 
 /* ── features ─────────────────────────────────────────────────────────── */
 .features {

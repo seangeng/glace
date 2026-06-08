@@ -7,10 +7,12 @@ function cx(...parts: (string | false | undefined | null)[]): string {
 
 const useIso = typeof document !== "undefined" ? useLayoutEffect : useEffect;
 
-// On-screen size morph → smooth deceleration, no overshoot (a bounce reads as
-// wobble here). ease-out-quint-ish.
-const MORPH_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
-const MORPH_DURATION = 360;
+// On-screen size morph → decisive deceleration, no overshoot and no flat-tail
+// hang (ease-out-cubic settles cleanly where quint creeps at the end).
+const MORPH_EASE = "cubic-bezier(0.33, 1, 0.68, 1)";
+// Duration scales with how far it travels — short hops snap, long ones take
+// their time. (Course: match duration to distance.)
+const morphDuration = (dist: number) => Math.round(Math.min(340, Math.max(130, dist * 2.6)));
 
 function prefersReducedMotion() {
   return (
@@ -39,10 +41,11 @@ function useMorphWidth(ref: { current: HTMLElement | null }, enabled: boolean) {
     el.style.width = restore;
     const prev = last.current;
     last.current = target;
-    if (prev == null || Math.abs(prev - target) < 0.5 || prefersReducedMotion()) return;
+    const dist = prev == null ? 0 : Math.abs(prev - target);
+    if (prev == null || dist < 1 || prefersReducedMotion()) return;
     const anim = el.animate(
       [{ width: `${prev}px` }, { width: `${target}px` }],
-      { duration: MORPH_DURATION, easing: MORPH_EASE },
+      { duration: morphDuration(dist), easing: MORPH_EASE },
     );
     return () => anim.cancel();
   });

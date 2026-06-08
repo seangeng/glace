@@ -1,8 +1,43 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { useGlassRefraction, type GlassProfile } from "./glass";
 
 function cx(...parts: (string | false | undefined | null)[]): string {
   return parts.filter(Boolean).join(" ");
+}
+
+const useIso = typeof document !== "undefined" ? useLayoutEffect : useEffect;
+
+// spring easing with a little overshoot — matches --glace-spring
+const MORPH_SPRING =
+  "linear(0, 0.009, 0.035 4.7%, 0.16, 0.28 12.7%, 0.72 24.5%, 0.92, 1.012, 1.044, 1.046, 1.031, 1.014, 1.004, 0.998, 0.997, 1)";
+
+/**
+ * Smoothly morph an element's width when its CONTENT changes. A CSS width
+ * transition can't do this (the `width` property stays `auto`, so nothing
+ * fires), so we measure the new natural width and animate to it with WAAPI —
+ * size, never scale, so the glass rim never distorts.
+ */
+function useMorphWidth(ref: { current: HTMLElement | null }, enabled: boolean) {
+  const last = useRef<number | null>(null);
+  useIso(() => {
+    const el = ref.current;
+    if (!enabled || !el) {
+      last.current = null;
+      return;
+    }
+    const restore = el.style.width;
+    el.style.width = "auto";
+    const target = el.getBoundingClientRect().width;
+    el.style.width = restore;
+    const prev = last.current;
+    last.current = target;
+    if (prev == null || Math.abs(prev - target) < 0.5) return;
+    const anim = el.animate(
+      [{ width: `${prev}px` }, { width: `${target}px` }],
+      { duration: 520, easing: MORPH_SPRING },
+    );
+    return () => anim.cancel();
+  });
 }
 
 function assignRef<T>(ref: React.ForwardedRef<T>, node: T) {
@@ -143,6 +178,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
   ref,
 ) {
   const inner = useRef<HTMLElement | null>(null);
+  useMorphWidth(inner, morph);
   const { backdrop, refracting } = useGlassRefraction(inner, {
     radius: 999,
     refract: refract !== false,

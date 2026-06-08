@@ -1,7 +1,25 @@
-import { GlassButton, toast } from "glaceui";
+import { useState } from "react";
+import { GlassButton, toast, type GlassButtonProps } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { MorphButton } from "../LiquidResize";
 import { PageHead, PropsTable, Section, Stage } from "../ui";
+
+/** A demo button that morphs to a new label on each click. */
+function TapButton({ a, b, ...rest }: { a: string; b: string } & GlassButtonProps) {
+  const [on, setOn] = useState(false);
+  return (
+    <GlassButton
+      morph
+      {...rest}
+      onClick={() => {
+        setOn((v) => !v);
+        toast(on ? a : b);
+      }}
+    >
+      {on ? b : a}
+    </GlassButton>
+  );
+}
 
 const USAGE = `import { GlassButton } from "glaceui";
 import "glaceui/styles.css";
@@ -32,18 +50,18 @@ export function Buttons() {
         back in 3D and sinks the shadow in. Hold one down to feel it.
       </PageHead>
 
-      <Section title="Sizes" sub="Three sizes, pill-shaped.">
+      <Section title="Sizes" sub="Three sizes, pill-shaped. Click one — the label morphs.">
         <Stage className="stage--center">
-          <GlassButton size="sm" onClick={() => toast("Small")}>Small</GlassButton>
-          <GlassButton size="md" onClick={() => toast("Medium")}>Medium</GlassButton>
-          <GlassButton size="lg" onClick={() => toast("Large")}>Large</GlassButton>
+          <TapButton size="sm" a="Small" b="Tapped" />
+          <TapButton size="md" a="Medium" b="Nice — pressed it" />
+          <TapButton size="lg" a="Large" b="Done" />
         </Stage>
       </Section>
 
-      <Section title="Tones" sub="Dark by default; light for bright backgrounds.">
+      <Section title="Tones" sub="Dark by default; light for bright backgrounds. Click to morph.">
         <Stage className="stage--center">
-          <GlassButton tone="dark" onClick={() => toast("Dark glass")}>Dark</GlassButton>
-          <GlassButton tone="light" onClick={() => toast("Light glass")}>Light</GlassButton>
+          <TapButton tone="dark" a="Dark" b="Looking good" />
+          <TapButton tone="light" a="Light" b="Bright" />
         </Stage>
       </Section>
 

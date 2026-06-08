@@ -27,7 +27,11 @@ interface ToastProps {
 }
 
 const SWIPE_THRESHOLD = 0.4; // fraction of width
-const EXIT_MS = 200;
+const EXIT_MS = 280;
+
+// Sileo-style spring: soft overshoot on enter/settle, clean ease-out on exit.
+const SPRING = "cubic-bezier(0.34, 1.5, 0.5, 1)";
+const EASE_OUT = "cubic-bezier(0.4, 0, 0.2, 1)";
 
 export function Toast({
   toast,
@@ -122,7 +126,7 @@ export function Toast({
   if (swipe !== 0) {
     transform = `translateX(${swipe}px)`;
   } else if (!mounted) {
-    transform = `translateY(${dir * -1 * 24}px) scale(0.92)`;
+    transform = `translateY(${dir * -1 * 26}px) scale(0.9)`;
   } else if (expanded || front) {
     transform = `translateY(${dir * layout.before}px) scale(1)`;
   } else {
@@ -159,7 +163,9 @@ export function Toast({
         touchAction: "pan-y",
         transition: drag.current
           ? "none"
-          : "transform 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease",
+          : removing
+            ? `transform 0.28s ${EASE_OUT}, opacity 0.24s ease`
+            : `transform 0.55s ${SPRING}, opacity 0.4s ease`,
       }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

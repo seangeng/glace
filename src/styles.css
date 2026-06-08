@@ -47,11 +47,18 @@
   width: 100%;
   padding: 13px 15px;
   border-radius: var(--glace-radius);
-  background: var(--glace-bg);
+  /* a faint corner light sits over the tint so the surface reads as glass */
+  background:
+    radial-gradient(135% 90% at 0% 0%, var(--glace-highlight), transparent 52%),
+    var(--glace-bg);
+  /* fallback frosting — overridden by the refraction rule on Chromium */
   -webkit-backdrop-filter: blur(var(--glace-blur, 16px)) saturate(180%);
   backdrop-filter: blur(var(--glace-blur, 16px)) saturate(180%);
   border: 1px solid var(--glace-border);
-  box-shadow: var(--glace-shadow), inset 0 1px 0 var(--glace-highlight);
+  box-shadow:
+    var(--glace-shadow),
+    inset 0 1px 0.5px var(--glace-highlight),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.04);
   color: var(--glace-text);
   font-size: var(--glace-font);
   line-height: 1.4;
@@ -62,8 +69,32 @@
 }
 [data-glace-toast] * { box-sizing: border-box; }
 
-/* grain + specular sheen */
+/* specular rim: a masked gradient border that catches light top-left → bottom-right */
 [data-glace-toast]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    var(--glace-highlight),
+    transparent 38%,
+    transparent 62%,
+    color-mix(in srgb, var(--glace-highlight) 55%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+/* fine grain to break up banding */
+[data-glace-toast]::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -73,15 +104,16 @@
   opacity: var(--glace-grain);
   mix-blend-mode: overlay;
 }
-[data-glace-toast]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(120% 80% at 0% 0%, var(--glace-highlight), transparent 55%);
-  opacity: 0.5;
+
+/* ── True liquid-glass refraction (Chromium only; degrades to the frost above) ── */
+[data-glace-toaster][data-refract] [data-glace-toast] {
+  /* low blur — the displacement map does the work, not the blur */
+  -webkit-backdrop-filter: var(--glace-refract) blur(3px) saturate(185%) brightness(1.04);
+  backdrop-filter: var(--glace-refract) blur(3px) saturate(185%) brightness(1.04);
 }
+/* let more backdrop through so the bent edges are visible */
+[data-glace-toaster][data-refract][data-theme="dark"] [data-glace-toast] { --glace-bg: rgba(28, 28, 32, 0.38); }
+[data-glace-toaster][data-refract][data-theme="light"] [data-glace-toast] { --glace-bg: rgba(255, 255, 255, 0.4); }
 
 /* ── Layout ───────────────────────────────────────────────────────────── */
 .glace-row {

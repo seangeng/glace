@@ -31,12 +31,23 @@ export function supportsRefraction(): boolean {
 
 /** Generate a rounded-rect displacement map (data URL) for a w×h surface.
  *  `bezel` is the refracting rim thickness as a fraction of the min dimension. */
+/** Edge profiles — how the glass surface bends across the bezel (à la Aave/kube).
+ *  `dir`: −1 magnifies outward (convex lens), +1 caves in (concave).
+ *  `sharpness`: rim falloff — low = a crisp bevel, high = a soft dome. */
+export type GlassProfile = "convex" | "concave" | "bevel";
+export const PROFILES: Record<GlassProfile, { dir: number; sharpness: number }> = {
+  convex: { dir: -1, sharpness: 0.7 },
+  concave: { dir: 1, sharpness: 0.7 },
+  bevel: { dir: -1, sharpness: 0.28 },
+};
+
 export function buildMap(
   w: number,
   h: number,
   radius: number,
   scale: number,
   bezel = 0.16,
+  sharpness = 0.7,
 ): string | null {
   if (typeof document === "undefined") return null;
   // clamp generation size — a 2000px nav is generated at 1400 and stretched
@@ -75,7 +86,7 @@ export function buildMap(
   ctx.restore();
 
   const border = Math.min(w, h) * bezel;
-  ctx.filter = `blur(${Math.round(radius * 0.7)}px)`;
+  ctx.filter = `blur(${Math.max(1, Math.round(radius * sharpness))}px)`;
   ctx.fillStyle = "hsla(0,0%,50%,0.92)";
   ctx.beginPath();
   ctx.roundRect(pad + border, pad + border, w - 2 * border, h - 2 * border, radius);
@@ -89,15 +100,18 @@ export function buildMap(
   }
 }
 
-function filterMarkup(id: string, map: string, scale: number, aberr: number): string {
+function filterMarkup(id: string, map: string, scale: number, aberr: number, dir: number): string {
+  const r = dir * (scale + aberr);
+  const g = dir * scale;
+  const b = dir * (scale - aberr);
   return `<svg style="position:absolute;width:0;height:0"><defs>
 <filter id="${id}" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
 <feImage href="${map}" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
-<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(scale + aberr)}" result="r"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${r}" result="r"/>
 <feColorMatrix in="r" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="rc"/>
-<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-scale}" result="g"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${g}" result="g"/>
 <feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="gc"/>
-<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(scale - aberr)}" result="b"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${b}" result="b"/>
 <feColorMatrix in="b" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="bc"/>
 <feBlend in="rc" in2="gc" mode="screen" result="rg"/>
 <feBlend in="rg" in2="bc" mode="screen"/>
@@ -120,18 +134,20 @@ function getFilter(
   scale: number,
   aberr: number,
   bezel: number,
+  profile: GlassProfile,
 ): string | null {
   if (typeof document === "undefined" || !supportsRefraction()) return null;
-  const key = `${w}x${h}r${radius}s${scale.toFixed(1)}a${aberr}b${bezel}`;
+  const key = `${w}x${h}r${radius}s${scale.toFixed(1)}a${aberr}b${bezel}p${profile}`;
   const hit = filterCache.get(key);
   if (hit) return hit;
-  const map = buildMap(w, h, radius, scale, bezel);
+  const { dir, sharpness } = PROFILES[profile] ?? PROFILES.convex;
+  const map = buildMap(w, h, radius, scale, bezel, sharpness);
   if (!map) return null;
   const id = `glace-rx-${++uid}`;
   const wrap = document.createElement("div");
   wrap.setAttribute("aria-hidden", "true");
   wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
-  wrap.innerHTML = filterMarkup(id, map, scale, aberr);
+  wrap.innerHTML = filterMarkup(id, map, scale, aberr, dir);
   document.body.appendChild(wrap);
   filterCache.set(key, id);
   return id;
@@ -146,6 +162,8 @@ export interface RefractionOptions {
   aberration?: number;
   /** Refracting rim thickness as a fraction of the min dimension (0–0.5). */
   bezel?: number;
+  /** Edge profile: convex lens · concave · bevel. Default convex. */
+  profile?: GlassProfile;
   /** backdrop saturation %, default 180. */
   saturation?: number;
   blur?: number;
@@ -169,6 +187,7 @@ export function useGlassRefraction(
     scale,
     aberration = ABERR,
     bezel = 0.16,
+    profile = "convex",
     saturation = 180,
     blur = 2.5,
     fallbackBlur = 14,
@@ -191,10 +210,10 @@ export function useGlassRefraction(
       const h = Math.round(el.offsetHeight);
       if (!w || !h) return; // not laid out yet — ResizeObserver / rAF will retry
       const sc = Math.min(Math.max(scale ?? scaleFor(w, h), 4), Math.min(w, h) * 0.5);
-      const key = `${w}x${h}r${radius}s${sc.toFixed(1)}a${aberration}b${bezel}`;
+      const key = `${w}x${h}r${radius}s${sc.toFixed(1)}a${aberration}b${bezel}p${profile}`;
       if (key === lastKey) return;
       lastKey = key;
-      const id = getFilter(w, h, radius, sc, aberration, bezel);
+      const id = getFilter(w, h, radius, sc, aberration, bezel, profile);
       if (!id) return;
       setState({
         backdrop: `url(#${id}) blur(${blur}px) saturate(${saturation}%) brightness(${brightness})`,
@@ -216,7 +235,7 @@ export function useGlassRefraction(
       cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refract, radius, scale, aberration, bezel, saturation, blur, fallbackBlur, brightness]);
+  }, [refract, radius, scale, aberration, bezel, profile, saturation, blur, fallbackBlur, brightness]);
 
   return state;
 }
@@ -228,7 +247,7 @@ export function useGlassRefraction(
 export function useGlassFilter(): string | null {
   const [id, setId] = useState<string | null>(null);
   useEffect(() => {
-    setId(getFilter(REF_W, REF_H, REF_RADIUS, scaleFor(REF_W, REF_H), ABERR, 0.16));
+    setId(getFilter(REF_W, REF_H, REF_RADIUS, scaleFor(REF_W, REF_H), ABERR, 0.16, "convex"));
   }, []);
   return id;
 }

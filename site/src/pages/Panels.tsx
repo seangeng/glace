@@ -1,7 +1,9 @@
 import { GlassButton, GlassCard, toast } from "glaceui";
 import { CodeBlock } from "../CodeBlock";
 import { DragArea, Draggable } from "../Draggable";
-import { PageHead, PropsTable, Section } from "../ui";
+import { PageHead, PropsTable, Section, Stage } from "../ui";
+
+const PROFILES = ["convex", "concave", "bevel"] as const;
 
 const USAGE = `import { GlassCard, GlassButton } from "glaceui";
 import "glaceui/styles.css";
@@ -18,6 +20,8 @@ const PROPS: [string, string, string][] = [
   ["interactive", "lift on hover", "false"],
   ["sheen", "specular sweep on hover/press", "false"],
   ["refract", "false · true · number (px)", "true"],
+  ["profile", "convex · concave · bevel", "convex"],
+  ["bezel", "rim thickness (fraction)", "0.16"],
   ["…rest", "all div props (or via `as`)", "—"],
 ];
 
@@ -47,6 +51,17 @@ export function Panels() {
             </GlassCard>
           </Draggable>
         </DragArea>
+      </Section>
+
+      <Section title="Edge profiles" sub="The lens shape changes how the rim bends the backdrop — convex magnifies outward, concave caves in, bevel is a crisp edge. (Aave's height-profile idea, as a prop.)">
+        <Stage className="stage--center">
+          {PROFILES.map((p) => (
+            <GlassCard key={p} profile={p} sheen className="profile-card">
+              <div className="demo-card-eyebrow">profile</div>
+              <div className="demo-card-title">{p}</div>
+            </GlassCard>
+          ))}
+        </Stage>
       </Section>
 
       <Section title="Usage">

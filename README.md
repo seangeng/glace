@@ -4,6 +4,13 @@
 
 **[glaceui.com](https://glaceui.com)** — live demo, playground, and docs.
 
+[![Glacé glass refraction](https://glaceui.com/shots/lab.png)](https://glaceui.com/primitives)
+
+<p>
+  <img src="https://glaceui.com/shots/buttons.png" width="49%" alt="Glass buttons" />
+  <img src="https://glaceui.com/shots/profiles.png" width="49%" alt="Edge profiles: convex, concave, bevel" />
+</p>
+
 ```bash
 npm i glaceui
 ```

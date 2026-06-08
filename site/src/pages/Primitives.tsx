@@ -26,6 +26,7 @@ const PROPS: [string, string, string][] = [
   ["radius", "corner radius (px)", "16"],
   ["refract", "false · true · number (px)", "true"],
   ["aberration", "chromatic split (px)", "1"],
+  ["profile", "convex · concave · bevel", "convex"],
   ["bezel", "rim thickness (fraction of min dim)", "0.16"],
   ["blur", "refraction-path blur (px)", "3"],
   ["saturation", "backdrop saturation (%)", "180"],

@@ -44,9 +44,10 @@ button { font-family: inherit; }
   z-index: -1;
   pointer-events: none;
   background-color: var(--bg);
-  /* subtle crosshair grid — gives the glass something to refract */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M15 11v8M11 15h8' stroke='%23ffffff' stroke-opacity='0.12' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-size: 30px 30px;
+  /* subtle film grain — calm, distinct from the gridded demo stages */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-blend-mode: soft-light;
 }
 .bg::before {
   content: "";
@@ -634,3 +635,12 @@ button { font-family: inherit; }
 .draggable { cursor: grab; }
 .draggable[data-dragging] { cursor: grabbing; }
 .draggable .demo-card { user-select: none; -webkit-user-select: none; }
+
+/* ── Lab profile selector ─────────────────────────────────────────────── */
+.lab-shapes { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.lab-shapes-label { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--faint); }
+.lab-shapes .seg button { text-transform: capitalize; }
+
+/* ── Profile cards (Panels) ───────────────────────────────────────────── */
+.profile-card { width: 150px; height: 96px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 16px; }
+.profile-card .demo-card-title { text-transform: capitalize; }

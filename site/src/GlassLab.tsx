@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { buildMap, supportsRefraction } from "glaceui";
+import { buildMap, supportsRefraction, PROFILES, type GlassProfile } from "glaceui";
+
+const SHAPES: GlassProfile[] = ["convex", "concave", "bevel"];
 
 /**
  * Glass Lab — a draggable glass card over a busy test chart, so the edge
@@ -22,6 +24,8 @@ export function GlassLab() {
   const [blur, setBlur] = useState(3);
   const [radius, setRadius] = useState(28);
   const [bezelPct, setBezelPct] = useState(16);
+  const [profile, setProfile] = useState<GlassProfile>("convex");
+  const dir = PROFILES[profile].dir;
   const [map, setMap] = useState<string | null>(null);
   const [pos, setPos] = useState({ x: 120, y: 120 });
   const drag = useRef<{ dx: number; dy: number } | null>(null);
@@ -32,9 +36,9 @@ export function GlassLab() {
 
   // regenerate the map whenever shape/strength changes
   useEffect(() => {
-    const m = buildMap(CARD_W, CARD_H, radius, scale, bezelPct / 100);
+    const m = buildMap(CARD_W, CARD_H, radius, scale, bezelPct / 100, PROFILES[profile].sharpness);
     if (m) setMap(m);
-  }, [radius, scale, bezelPct]);
+  }, [radius, scale, bezelPct, profile]);
 
   function onDown(e: React.PointerEvent) {
     drag.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y };
@@ -61,11 +65,11 @@ export function GlassLab() {
           <defs>
             <filter id={fid} colorInterpolationFilters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
               <feImage href={map} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
-              <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-(scale + aberration)} result="r" />
+              <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={dir * (scale + aberration)} result="r" />
               <feColorMatrix in="r" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="rc" />
-              <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-scale} result="g" />
+              <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={dir * scale} result="g" />
               <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="gc" />
-              <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={-(scale - aberration)} result="b" />
+              <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale={dir * (scale - aberration)} result="b" />
               <feColorMatrix in="b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="bc" />
               <feBlend in="rc" in2="gc" mode="screen" result="rg" />
               <feBlend in="rg" in2="bc" mode="screen" />
@@ -109,6 +113,14 @@ export function GlassLab() {
         <Slider label="Blur" value={blur} min={0} max={16} onChange={setBlur} suffix="px" />
         <Slider label="Radius" value={radius} min={8} max={64} onChange={setRadius} suffix="px" />
         <Slider label="Bezel" value={bezelPct} min={4} max={40} onChange={setBezelPct} suffix="%" />
+      </div>
+      <div className="lab-shapes">
+        <span className="lab-shapes-label">Profile</span>
+        <div className="seg">
+          {SHAPES.map((s) => (
+            <button key={s} data-on={profile === s} onClick={() => setProfile(s)}>{s}</button>
+          ))}
+        </div>
       </div>
       {!refract && (
         <p className="lab-note">

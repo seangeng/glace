@@ -1,5 +1,5 @@
 import { forwardRef, useRef } from "react";
-import { useGlassRefraction } from "./glass";
+import { useGlassRefraction, type GlassProfile } from "./glass";
 
 function cx(...parts: (string | false | undefined | null)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -28,6 +28,8 @@ export interface GlassProps extends React.HTMLAttributes<HTMLElement> {
   aberration?: number;
   /** Refracting rim thickness as a fraction of the min dimension, 0–0.5 (default 0.16). */
   bezel?: number;
+  /** Edge shape of the lens: `convex` · `concave` · `bevel` (default convex). */
+  profile?: GlassProfile;
   /** Backdrop saturation %, default 180. */
   saturation?: number;
   /** Lift slightly on hover. */
@@ -53,6 +55,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
     refract = true,
     aberration,
     bezel,
+    profile,
     saturation,
     interactive = false,
     morph = false,
@@ -71,6 +74,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
     scale: typeof refract === "number" ? refract : undefined,
     aberration,
     bezel,
+    profile,
     saturation,
     blur,
     fallbackBlur,
@@ -125,6 +129,8 @@ export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
   aberration?: number;
   /** Refracting rim thickness as a fraction of the min dimension (default 0.16). */
   bezel?: number;
+  /** Edge shape of the lens: `convex` · `concave` · `bevel` (default convex). */
+  profile?: GlassProfile;
   /** Backdrop saturation %, default 180. */
   saturation?: number;
   /** Smoothly morph width (spring) when the label changes. */
@@ -133,7 +139,7 @@ export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
 
 /** A frosted-glass button with a specular rim and a springy press. */
 export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(function GlassButton(
-  { tone = "dark", size = "md", refract = true, aberration, bezel, saturation, morph = false, type = "button", className, style, children, ...rest },
+  { tone = "dark", size = "md", refract = true, aberration, bezel, profile, saturation, morph = false, type = "button", className, style, children, ...rest },
   ref,
 ) {
   const inner = useRef<HTMLElement | null>(null);
@@ -143,6 +149,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
     scale: typeof refract === "number" ? refract : undefined,
     aberration,
     bezel,
+    profile,
     saturation,
     blur: 2.5,
     fallbackBlur: 10,

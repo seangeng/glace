@@ -98,6 +98,9 @@ export function Toast({
   const duration = toast.duration ?? (toast.type === "loading" ? Infinity : defaultDuration);
   useEffect(() => {
     if (duration === Infinity || removing || paused) return;
+    // A loading toast (duration Infinity) that resolves to a finite duration
+    // starts its countdown fresh.
+    if (!Number.isFinite(remaining.current)) remaining.current = duration;
     startedAt.current = Date.now();
     timer.current = setTimeout(() => close("auto"), Math.max(remaining.current, 0));
     // On cleanup (pause, in-place update, unmount) credit the time already
@@ -106,7 +109,7 @@ export function Toast({
       if (timer.current) {
         clearTimeout(timer.current);
         timer.current = null;
-        remaining.current -= Date.now() - startedAt.current;
+        remaining.current = Math.max(0, remaining.current - (Date.now() - startedAt.current));
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

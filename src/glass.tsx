@@ -18,6 +18,7 @@ const REF_RADIUS = 16;
 const BASE_SCALE = 18; // px of edge displacement (clamped to the element)
 const ABERR = 1.0; // chromatic split
 const MAX_DIM = 1400; // clamp generated canvas so wide surfaces stay cheap
+const SIZE_STEP = 8; // px grid for quantizing element size → bounds the filter cache
 
 let supportCache: boolean | undefined;
 export function supportsRefraction(): boolean {
@@ -207,17 +208,24 @@ export function useGlassRefraction(
 
   useEffect(() => {
     const el = ref.current;
-    if (!refract || !el || !supportsRefraction()) return;
+    if (!refract || !el || !supportsRefraction()) {
+      setState({ backdrop: `blur(${fallbackBlur}px) saturate(${saturation}%)`, refracting: false });
+      return;
+    }
     let raf = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let lastKey = "";
 
     const render = () => {
-      const w = Math.round(el.offsetWidth);
-      const h = Math.round(el.offsetHeight);
-      if (!w || !h) return; // not laid out yet — ResizeObserver / rAF will retry
-      const sc = Math.min(Math.max(scale ?? scaleFor(w, h), 4), Math.min(w, h) * 0.5);
-      const key = `${w}x${h}r${radius}s${sc.toFixed(1)}a${aberration}b${bezel}p${profile}`;
+      const rw = Math.round(el.offsetWidth);
+      const rh = Math.round(el.offsetHeight);
+      if (!rw || !rh) return; // not laid out yet — ResizeObserver / rAF will retry
+      // quantize size + scale so a size animation reuses filters from a small
+      // bucket set instead of minting (and leaking) one filter per pixel.
+      const w = Math.max(SIZE_STEP, Math.round(rw / SIZE_STEP) * SIZE_STEP);
+      const h = Math.max(SIZE_STEP, Math.round(rh / SIZE_STEP) * SIZE_STEP);
+      const sc = Math.round(Math.min(Math.max(scale ?? scaleFor(w, h), 4), Math.min(w, h) * 0.5) * 10) / 10;
+      const key = `${w}x${h}r${radius}s${sc}a${aberration}b${bezel}p${profile}`;
       if (key === lastKey) return;
       lastKey = key;
       const id = getFilter(w, h, radius, sc, aberration, bezel, profile);

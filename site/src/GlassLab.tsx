@@ -47,8 +47,8 @@ export function GlassLab() {
   function onMove(e: React.PointerEvent) {
     if (!drag.current || !stage.current) return;
     const r = stage.current.getBoundingClientRect();
-    const x = Math.min(Math.max(0, e.clientX - drag.current.dx), r.width - CARD_W);
-    const y = Math.min(Math.max(0, e.clientY - drag.current.dy), r.height - CARD_H);
+    const x = Math.min(Math.max(0, e.clientX - drag.current.dx), Math.max(0, r.width - CARD_W));
+    const y = Math.min(Math.max(0, e.clientY - drag.current.dy), Math.max(0, r.height - CARD_H));
     setPos({ x, y });
   }
   function onUp() {

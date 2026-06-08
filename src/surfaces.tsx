@@ -29,6 +29,10 @@ function prefersReducedMotion() {
  */
 function useMorphWidth(ref: { current: HTMLElement | null }, enabled: boolean) {
   const last = useRef<number | null>(null);
+  const anim = useRef<Animation | null>(null);
+  // Runs every render (no deps): re-measure and morph only when the width
+  // actually changed. The in-flight animation lives in a ref so an unrelated
+  // re-render (e.g. the refraction ResizeObserver firing) doesn't cancel it.
   useIso(() => {
     const el = ref.current;
     if (!enabled || !el) {
@@ -43,12 +47,14 @@ function useMorphWidth(ref: { current: HTMLElement | null }, enabled: boolean) {
     last.current = target;
     const dist = prev == null ? 0 : Math.abs(prev - target);
     if (prev == null || dist < 1 || prefersReducedMotion()) return;
-    const anim = el.animate(
+    anim.current?.cancel();
+    anim.current = el.animate(
       [{ width: `${prev}px` }, { width: `${target}px` }],
       { duration: morphDuration(dist), easing: MORPH_EASE },
     );
-    return () => anim.cancel();
   });
+  // Cancel only on unmount.
+  useEffect(() => () => anim.current?.cancel(), []);
 }
 
 function assignRef<T>(ref: React.ForwardedRef<T>, node: T | null) {

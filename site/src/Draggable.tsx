@@ -32,8 +32,8 @@ export function Draggable({
     const w = el.offsetWidth;
     const h = el.offsetHeight;
     setPos({
-      x: clamp(e.clientX - drag.current.dx, 0, parent.clientWidth - w),
-      y: clamp(e.clientY - drag.current.dy, 0, parent.clientHeight - h),
+      x: clamp(e.clientX - drag.current.dx, 0, Math.max(0, parent.clientWidth - w)),
+      y: clamp(e.clientY - drag.current.dy, 0, Math.max(0, parent.clientHeight - h)),
     });
   };
   const onUp = () => {

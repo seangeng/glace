@@ -48,9 +48,11 @@ export function Draggable({
       data-dragging={dragging ? "" : undefined}
       style={{
         position: "absolute",
-        left: 0,
-        top: 0,
-        transform: `translate(${pos.x}px, ${pos.y}px)`,
+        // position with left/top, NOT transform: a transformed element composites
+        // its backdrop-filter once and rides the cached refraction along; left/top
+        // re-samples the backdrop each move so the glass bends what's under it.
+        left: pos.x,
+        top: pos.y,
         touchAction: "none",
       }}
       onPointerDown={onDown}

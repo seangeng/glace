@@ -93,7 +93,10 @@ export function GlassLab() {
           style={{
             width: CARD_W,
             height: CARD_H,
-            transform: `translate(${pos.x}px, ${pos.y}px)`,
+            // left/top, not transform — a transformed element rides a cached
+            // backdrop-filter; left/top re-samples so the lens stays live.
+            left: pos.x,
+            top: pos.y,
             borderRadius: radius,
             WebkitBackdropFilter: filterCss,
             backdropFilter: filterCss,

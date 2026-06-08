@@ -12,11 +12,15 @@ import { useEffect, useState } from "react";
  */
 
 const FILTER_ID = "glace-glass";
-const SCALE = 34;
-const ABERRATION = 3;
+const SCALE = 22;
+const ABERRATION = 1.0;
 const REF_W = 356;
 const REF_H = 84;
 const REF_RADIUS = 16;
+
+// per-element tuning — keep refraction concentrated at the rim and gentle
+const BASE_SCALE = 18;
+const ABERR = 1.0;
 
 // undefined = not yet attempted, null = unsupported, string = mounted filter id
 let cached: string | null | undefined;
@@ -122,4 +126,92 @@ export function glassBackdrop(filterId: string | null, blur: number, fallbackBlu
   return filterId
     ? `url(#${filterId}) blur(${blur}px) saturate(180%) brightness(1.04)`
     : `blur(${fallbackBlur}px) saturate(180%)`;
+}
+
+function filterMarkup(id: string, map: string, scale: number, aberr: number): string {
+  return `<svg style="position:absolute;width:0;height:0"><defs>
+<filter id="${id}" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+<feImage href="${map}" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(scale + aberr)}" result="r"/>
+<feColorMatrix in="r" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="rc"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-scale}" result="g"/>
+<feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="gc"/>
+<feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="B" scale="${-(scale - aberr)}" result="b"/>
+<feColorMatrix in="b" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="bc"/>
+<feBlend in="rc" in2="gc" mode="screen" result="rg"/>
+<feBlend in="rg" in2="bc" mode="screen"/>
+</filter></defs></svg>`;
+}
+
+let uid = 0;
+
+export interface RefractionOptions {
+  radius?: number;
+  refract?: boolean;
+  blur?: number;
+  fallbackBlur?: number;
+  brightness?: number;
+}
+
+/**
+ * Per-element refraction. Generates a displacement map at the element's ACTUAL
+ * size (so the rim stays the right thickness at any aspect ratio — a wide nav
+ * and a small button both refract only at their edges, never the center) and
+ * regenerates on resize. This is the fix for "one stretched map" smearing.
+ */
+export function useGlassRefraction(
+  ref: { current: HTMLElement | null },
+  opts: RefractionOptions = {},
+): { backdrop: string; refracting: boolean } {
+  const { radius = 16, refract = true, blur = 2.5, fallbackBlur = 14, brightness = 1.03 } = opts;
+  const [state, setState] = useState({
+    backdrop: `blur(${fallbackBlur}px) saturate(180%)`,
+    refracting: false,
+  });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!refract || !el || !supportsRefraction()) return;
+    const id = `glace-rx-${++uid}`;
+    const wrap = document.createElement("div");
+    wrap.setAttribute("aria-hidden", "true");
+    wrap.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
+    document.body.appendChild(wrap);
+
+    let lastW = 0;
+    let lastH = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const render = () => {
+      const w = Math.round(el.offsetWidth);
+      const h = Math.round(el.offsetHeight);
+      if (!w || !h || (w === lastW && h === lastH)) return;
+      lastW = w;
+      lastH = h;
+      const scale = Math.min(BASE_SCALE, Math.max(8, Math.min(w, h) * 0.4));
+      const map = buildMap(w, h, radius, scale);
+      if (!map) return;
+      wrap.innerHTML = filterMarkup(id, map, scale, ABERR);
+      setState({
+        backdrop: `url(#${id}) blur(${blur}px) saturate(180%) brightness(${brightness})`,
+        refracting: true,
+      });
+    };
+
+    render();
+    const ro = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(render, 120);
+    });
+    ro.observe(el);
+
+    return () => {
+      ro.disconnect();
+      clearTimeout(timer);
+      wrap.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refract, radius, blur, fallbackBlur, brightness]);
+
+  return state;
 }

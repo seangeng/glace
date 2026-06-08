@@ -1,8 +1,13 @@
-import { forwardRef } from "react";
-import { glassBackdrop, useGlassFilter } from "./glass";
+import { forwardRef, useRef } from "react";
+import { useGlassRefraction } from "./glass";
 
 function cx(...parts: (string | false | undefined | null)[]): string {
   return parts.filter(Boolean).join(" ");
+}
+
+function assignRef<T>(ref: React.ForwardedRef<T>, node: T) {
+  if (typeof ref === "function") ref(node);
+  else if (ref) (ref as React.MutableRefObject<T>).current = node;
 }
 
 export type GlassTone = "light" | "dark";
@@ -27,15 +32,15 @@ export interface GlassProps extends React.HTMLAttributes<HTMLElement> {
 
 /**
  * A reusable frosted-glass surface — the foundation every Glacé component is
- * built on. Drop it anywhere you want real glass: a panel, a card background, a
- * bar. Renders any element via `as`.
+ * built on. The refraction is generated at this element's real size, so the rim
+ * stays crisp at any width/height. Renders any element via `as`.
  */
 export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
   {
     as,
     tone = "dark",
     radius = 16,
-    blur = 3,
+    blur = 2.5,
     fallbackBlur = 14,
     refract = true,
     interactive = false,
@@ -47,14 +52,16 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
   },
   ref,
 ) {
-  const filterId = useGlassFilter();
-  const on = refract ? filterId : null;
-  const backdrop = glassBackdrop(on, blur, fallbackBlur);
+  const inner = useRef<HTMLElement | null>(null);
+  const { backdrop, refracting } = useGlassRefraction(inner, { radius, refract, blur, fallbackBlur });
   const Tag = (as ?? "div") as React.ElementType;
 
   return (
     <Tag
-      ref={ref}
+      ref={(node: HTMLElement | null) => {
+        inner.current = node;
+        assignRef(ref, node as HTMLElement);
+      }}
       className={cx(
         "glace-glass",
         interactive && "glace-glass--interactive",
@@ -62,7 +69,7 @@ export const Glass = forwardRef<HTMLElement, GlassProps>(function Glass(
         className,
       )}
       data-tone={tone}
-      data-refract={on ? "" : undefined}
+      data-refract={refracting ? "" : undefined}
       style={{
         borderRadius: radius,
         backdropFilter: backdrop,
@@ -99,17 +106,19 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
   { tone = "dark", size = "md", refract = true, morph = false, type = "button", className, style, children, ...rest },
   ref,
 ) {
-  const filterId = useGlassFilter();
-  const on = refract ? filterId : null;
-  const backdrop = glassBackdrop(on, 3, 10);
+  const inner = useRef<HTMLElement | null>(null);
+  const { backdrop, refracting } = useGlassRefraction(inner, { radius: 999, refract, blur: 2.5, fallbackBlur: 10 });
 
   return (
     <button
-      ref={ref}
+      ref={(node: HTMLButtonElement | null) => {
+        inner.current = node;
+        assignRef(ref, node);
+      }}
       type={type}
       className={cx("glace-glass", "glace-gbtn", `glace-gbtn--${size}`, morph && "glace-glass--morph", className)}
       data-tone={tone}
-      data-refract={on ? "" : undefined}
+      data-refract={refracting ? "" : undefined}
       style={{ backdropFilter: backdrop, WebkitBackdropFilter: backdrop, ...style }}
       {...rest}
     >

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet, useOutletContext } from "react-router-dom";
 import { Glass, Toaster } from "glaceui";
-import { Mark } from "./Icons";
+import { BookOpen, Github, Mark, Npm } from "./Icons";
 import type { ToasterConfig } from "./Playground";
 
 export interface DocsContext {
@@ -44,9 +44,9 @@ export function Layout() {
           <span>Glacé</span>
         </Link>
         <div className="nav-links">
-          <NavLink to="/toasts">Docs</NavLink>
-          <a href="https://github.com/seangeng/glace" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://www.npmjs.com/package/glaceui" target="_blank" rel="noreferrer">npm</a>
+          <NavLink to="/toasts"><BookOpen className="nav-icon" /><span>Docs</span></NavLink>
+          <a href="https://github.com/seangeng/glace" target="_blank" rel="noreferrer"><Github className="nav-icon" /><span>GitHub</span></a>
+          <a href="https://www.npmjs.com/package/glaceui" target="_blank" rel="noreferrer"><Npm className="nav-icon" /><span>npm</span></a>
         </div>
       </Glass>
 

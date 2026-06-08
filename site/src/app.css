@@ -88,9 +88,12 @@ button { font-family: inherit; }
 }
 .brand { display: flex; align-items: center; gap: 9px; font-weight: 560; text-decoration: none; letter-spacing: -0.02em; font-size: 1.02rem; }
 .brand-mark { width: 20px; height: 20px; }
-.nav-links { display: flex; gap: 22px; font-size: 0.9rem; }
-.nav-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links { display: flex; gap: 18px; font-size: 0.9rem; }
+.nav-links a { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
 .nav-links a:hover { color: var(--fg); }
+.nav-links a.active { color: var(--fg); }
+.nav-icon { width: 15px; height: 15px; }
+@media (max-width: 560px) { .nav-links a span { display: none; } .nav-links { gap: 16px; } }
 
 /* ── editorial type ───────────────────────────────────────────────────── */
 .eyebrow {

@@ -85,6 +85,8 @@ export function Layout() {
               <a href="https://github.com/seangeng/glace" target="_blank" rel="noreferrer">GitHub</a>
               <span aria-hidden>·</span>
               <a href="https://www.npmjs.com/package/glaceui" target="_blank" rel="noreferrer">npm</a>
+              <span aria-hidden>·</span>
+              <a href="https://argentui.seangeng94.workers.dev" target="_blank" rel="noreferrer">Argent (metal sibling)</a>
             </p>
             <p className="site-footer-credits">
               On the shoulders of sonner, Aave's glass recipe, Sileo, and web-haptics.
